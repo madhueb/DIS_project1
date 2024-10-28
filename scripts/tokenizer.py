@@ -22,25 +22,28 @@ def main() -> None:
         use_fast=False,
     )
 
-    tokenized_all_chunks_i = []
-    for chunks in tqdm(all_chunks_i):
-        tokenized_all_chunks_i.append(
-            tokenizer(
-                chunks,
-                padding=True,
-                truncation=True,
-                add_special_tokens=True,
-                max_length=512,
-                return_tensors="pt",
-            )
-        )
 
     json_dict = {}
     for i, docid in enumerate(docids_i):
         json_dict[docid] = {
             "lang": langs_i[i],
-            "chunks": tokenized_all_chunks_i[i],
+            "chunks": all_chunks_i[i]
         }
+
+
+    for docid in tqdm(json_dict):
+        tokenized = tokenizer(
+                            json_dict[docid]["chunks"],
+                            padding=True,
+                            truncation=True,
+                            add_special_tokens=True,
+                            max_length=512,
+                            return_tensors="pt",
+                            )
+        for key in tokenized:
+            tokenized[key] = tokenized[key].tolist()
+        json_dict[docid]["chunks"] = tokenized
+
 
     with open(args.output / f"tokenized_{args.split_id}.json", "w") as f:
         json.dump(json_dict, f)
