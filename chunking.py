@@ -1,8 +1,7 @@
 import argparse
 from pathlib import Path
-import re
-from pathlib import Path
 import pickle
+import re
 
 import pandas as pd
 from tqdm import tqdm
