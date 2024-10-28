@@ -40,7 +40,9 @@ def main() -> None:
             print(e)
             print(i, docids_i[i])
 
-    tokenized_corpus_i = (docids_i[ids], langs_i[ids], tokenized_all_chunks_i)
+    docids_i = [docids_i[i] for i in ids]
+    langs_i = [langs_i[i] for i in ids]
+    tokenized_corpus_i = (docids_i, langs_i, tokenized_all_chunks_i)
     with open(args.output / f"tokenized_corpus_{args.split_id}.pkl", "wb") as f:
         pickle.dump(tokenized_corpus_i, f)
 
