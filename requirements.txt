@@ -1,0 +1,8 @@
+torch
+tqdm
+transformers
+numpy
+datasets
+pandas
+beautifulsoup4
+setuptools
