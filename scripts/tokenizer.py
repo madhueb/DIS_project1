@@ -2,8 +2,7 @@ import argparse
 from pathlib import Path
 import pickle
 from transformers import AutoTokenizer
-import json
-from tqdm import tqdm
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Tokenizing")
@@ -22,33 +21,22 @@ def main() -> None:
         use_fast=False,
     )
 
+    tokenized_all_chunks_i = []
+    for chunks in all_chunks_i:
+        tokenized_all_chunks_i.append(
+            tokenizer(
+                chunks,
+                padding=True,
+                truncation=True,
+                add_special_tokens=True,
+                max_length=512,
+                return_tensors="pt",
+            )
+        )
 
-    json_dict = {}
-    for i, docid in enumerate(docids_i):
-        json_dict[docid] = {
-            "lang": langs_i[i],
-            "chunks": all_chunks_i[i]
-        }
-
-
-    for docid in tqdm(json_dict):
-        tokenized = tokenizer(
-                            json_dict[docid]["chunks"],
-                            padding=True,
-                            truncation=True,
-                            add_special_tokens=True,
-                            max_length=512,
-                            return_tensors="pt",
-                            )
-        for key in tokenized:
-            tokenized[key] = tokenized[key].tolist()
-        json_dict[docid]["chunks"] = tokenized
-
-
-    with open(args.output / f"tokenized_{args.split_id}.json", "w") as f:
-        json.dump(json_dict, f)
-
-
+    tokenized_corpus_i = (docids_i, langs_i, tokenized_all_chunks_i)
+    with open(args.output / f"tokenized_corpus_{args.split_id}.pkl", "wb") as f:
+        pickle.dump(tokenized_corpus_i, f)
 
 
 if __name__ == "__main__":
