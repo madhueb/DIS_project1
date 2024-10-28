@@ -10,16 +10,16 @@ from bs4 import BeautifulSoup
 
 
 def clean_text(text):
-    soup = BeautifulSoup(text, "lxml")
+    soup = BeautifulSoup(text, "html.parser")
 
-    for img in soup.find_all("img"):
-        img.decompose()
-
-    for table in soup.find_all("table"):
-        table.decompose()
+    # for img in soup.find_all("img"):
+    #     img.decompose()
+    #
+    # for table in soup.find_all("table"):
+    #     table.decompose()
 
     clean_text = soup.get_text()
-    clean_text = re.sub(r"http\S+|www\S+", " ", clean_text)
+    clean_text = re.sub(r"http[s]?://\S+|www\.\S+", " ", clean_text)
     clean_text = re.sub(r"\s+", " ", clean_text).strip()
 
     return clean_text
