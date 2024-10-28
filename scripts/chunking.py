@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 
 def clean_text(text):
-    soup = BeautifulSoup(text, "html.parser")
+    # soup = BeautifulSoup(text, "html.parser")
 
     # for img in soup.find_all("img"):
     #     img.decompose()
@@ -18,9 +18,15 @@ def clean_text(text):
     # for table in soup.find_all("table"):
     #     table.decompose()
 
-    clean_text = soup.get_text()
-    clean_text = re.sub(r"http[s]?://\S+|www\.\S+", " ", clean_text)
-    clean_text = re.sub(r"\s+", " ", clean_text).strip()
+    # clean_text = soup.get_text()
+    # Step 1: Remove URLs
+    text = re.sub(r"http[s]?://\S+|www\.\S+", " ", text)
+
+    # Step 2: Remove long sequences of non-alphanumeric characters (e.g., encoded data or code)
+    text = re.sub(r"[^\w\s]{4,}", " ", text)  # Removes any sequence of 4 or more non-alphanumeric characters
+
+    # Step 3: Remove excessive whitespace
+    clean_text = re.sub(r"\s+", " ", text, flags=re.UNICODE).strip()
 
     return clean_text
 
