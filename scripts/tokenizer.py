@@ -6,9 +6,9 @@ import json
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Tokenizing")
-    parser.add_argument("chunks", type=Path, help="path to chunked corpus directory")
-    parser.add_argument("output", type=Path, help="path to output directory")
-    parser.add_argument("split_id", type=int, help="split id")
+    parser.add_argument("--chunks", type=Path, help="path to chunked corpus directory")
+    parser.add_argument("--output", type=Path, help="path to output directory")
+    parser.add_argument("--split_id", type=int, help="split id")
     args = parser.parse_args()
 
     with open(args.chunks / f"corpus_{args.split_id}.pkl", "rb") as f:
