@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 import pickle
 from transformers import AutoTokenizer
-
+from tqdm import tqdm
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Tokenizing")
@@ -22,19 +22,25 @@ def main() -> None:
     )
 
     tokenized_all_chunks_i = []
-    for chunks in all_chunks_i:
-        tokenized_all_chunks_i.append(
-            tokenizer(
-                chunks,
-                padding=True,
-                truncation=True,
-                add_special_tokens=True,
-                max_length=512,
-                return_tensors="pt",
+    ids = []
+    for i, chunks in enumerate(tqdm(all_chunks_i, desc="Tokenizing")):
+        try:
+            tokenized_all_chunks_i.append(
+                tokenizer(
+                    chunks,
+                    padding=True,
+                    truncation=True,
+                    add_special_tokens=True,
+                    max_length=512,
+                    return_tensors="pt",
+                )
             )
-        )
+            ids.append(i)
+        except Exception as e:
+            print(e)
+            print(i, docids_i[i])
 
-    tokenized_corpus_i = (docids_i, langs_i, tokenized_all_chunks_i)
+    tokenized_corpus_i = (docids_i[ids], langs_i[ids], tokenized_all_chunks_i)
     with open(args.output / f"tokenized_corpus_{args.split_id}.pkl", "wb") as f:
         pickle.dump(tokenized_corpus_i, f)
 
