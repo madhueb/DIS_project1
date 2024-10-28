@@ -81,7 +81,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Chunking")
     parser.add_argument("corpus", type=Path, help="path to corpus.json")
     parser.add_argument("output", type=Path, help="path to output directory")
-    parser.add_argument("num_splits", type=int, default=12, help="chunk size")
+    parser.add_argument("num_splits", type=int, default=12, help="number of splits")
     args = parser.parse_args()
 
     corpus_df = pd.read_json(args.corpus)
