@@ -7,3 +7,6 @@ pandas
 beautifulsoup4
 setuptools
 lxml
+tiktoken
+protobuf
+sentencepiece

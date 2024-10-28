@@ -3,6 +3,7 @@ from pathlib import Path
 import pickle
 from transformers import AutoTokenizer
 import json
+from tqdm import tqdm
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Tokenizing")
@@ -22,7 +23,7 @@ def main() -> None:
     )
 
     tokenized_all_chunks_i = []
-    for chunks in all_chunks_i:
+    for chunks in tqdm(all_chunks_i):
         tokenized_all_chunks_i.append(
             tokenizer(
                 chunks,
