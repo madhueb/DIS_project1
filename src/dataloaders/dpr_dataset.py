@@ -1,7 +1,8 @@
 
 import torch
+from torch.utils.data import Dataset
 
-class DPRDataset:
+class DPRDataset(Dataset):
 
     def __init__(self, query_df, is_test=False, doc_embeds=None):
         self.query_df = query_df.reset_index(drop=True)

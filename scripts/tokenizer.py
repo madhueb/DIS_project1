@@ -28,7 +28,7 @@ def main() -> None:
         tokenized_all_chunks_i.append(
             tokenizer(
                 chunks,
-                padding=True,
+                padding='max_length',
                 truncation=True,
                 add_special_tokens=True,
                 max_length=512,
