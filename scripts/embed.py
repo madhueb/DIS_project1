@@ -75,7 +75,7 @@ def embed(tokens_path, output_path, split_id) -> None:
         for batch in tqdm(dataloader, desc="Embedding..."):
             inputs = {k: v.to(model.device) for k, v in batch["tokens"].items()}
             outputs = model(**inputs, return_dict=True)
-            outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask'])
+            outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask']).cpu().numpy()
             docids_i += batch["q_id"]
             langs_i += batch["lang"]
             embed_all_chunks_i.append(outputs)
