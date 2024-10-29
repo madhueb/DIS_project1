@@ -1,7 +1,6 @@
 import argparse
 
 
-from pathlib import Path
 import pickle
 
 import torch
@@ -34,7 +33,7 @@ def embed(tokens_path, output_path, split_id) -> None:
         embed_all_chunks_i.append(outputs)
 
     embed_all_chunks_i = (docids_i, langs_i, embed_all_chunks_i)
-    with open(output_path / f"embed_all_chunks_{split_id}.pkl", "wb") as f:
+    with open(f"{output_path}/embed_all_chunks_{split_id}.pkl", "wb") as f:
         pickle.dump(embed_all_chunks_i, f)
 
 
@@ -43,8 +42,8 @@ def embed(tokens_path, output_path, split_id) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Embedding")
-    parser.add_argument("--tokens", type=Path, help="path to tokenized corpus directory")
-    parser.add_argument("--output", type=Path, help="path to output directory")
+    parser.add_argument("--tokens", type=str, help="path to tokenized corpus directory")
+    parser.add_argument("--output", type=str, help="path to output directory")
     parser.add_argument("--split_id", type=int, help="split id")
     args = parser.parse_args()
     embed(args.tokens, args.output, args.split_id)
