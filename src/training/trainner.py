@@ -113,9 +113,12 @@ class Trainer:
             print(f"train loss: {self.train_losses[-1]}")
             print(f"valid loss: {self.val_losses[-1]}\n\n")
 
-            if self.val_losses[-1] == min(self.val_losses):
+            # if self.val_losses[-1] == min(self.val_losses):
                 # torch.save(self.model.state_dict(), f"{self.config['save_path']}/best_model.pth")
-                self.model.save(self.config['save_path'])
+            if not os.path.exists(self.config['save_path'] + f"/epoch_{epoch}"):
+                os.makedirs(self.config['save_path'] + f"/epoch_{epoch}")
+            self.model.save(self.config['save_path'] + f"/epoch_{epoch}")
+        self.model.save(self.config['save_path'])
 
 
     def clear(self):
