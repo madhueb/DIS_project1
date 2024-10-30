@@ -10,20 +10,21 @@ class DPRDataset(Dataset):
         self.is_test = is_test
 
     def __getitem__(self, idx):
+        row = self.query_df.iloc[idx]
         inputs = {
-            "query": torch.tensor(self.query_df['query_embed'][idx], dtype=torch.float32),
+            "query": torch.tensor(row['query_embed'], dtype=torch.float32),
         }
 
         if self.is_test:
-            inputs['query_id'] = self.query_df['query_id'][idx]
-            inputs['lang'] = self.query_df['lang'][idx]
+            inputs['query_id'] = row['query_id']
+            inputs['lang'] = row['lang']
             return inputs
 
-        positive_idx = self.query_df['positive_docs'][idx]
+        positive_idx = row['positive_docs']
         positive_sample = self.doc_embeds[positive_idx]['embeds']
         positive_sample = torch.tensor(positive_sample, dtype=torch.float32)
 
-        negative_indices = self.query_df['negative_docs'][idx]
+        negative_indices = row['negative_docs'][1:-1].split(', ')
         negative_sample_list = [self.doc_embeds[neg_idx]['embeds'] for neg_idx in negative_indices]
         negative_sample = []
         for sample in negative_sample_list:
