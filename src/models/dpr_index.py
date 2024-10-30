@@ -44,10 +44,10 @@ class DPRIndexModule(nn.Module):
         self.index = {}
         N = config.get('index_N', 128)
         self.doc_ids = {lang: [] for lang in langs}
+        res = faiss.StandardGpuResources()
         for lang in langs:
             self.index[lang] = faiss.IndexHNSWFlat(embed_size, N, faiss.METRIC_INNER_PRODUCT)
             if config['device'] != 'cpu':
-                res = faiss.StandardGpuResources()
                 self.index[lang] = faiss.index_cpu_to_gpu(res, 0, self.index[lang])
         print("Created index")
         # Add documents to index
