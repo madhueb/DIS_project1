@@ -1,19 +1,26 @@
-
-from transformers import AutoModel
-
 import torch.nn as nn
 
-from src.models.utils import pooling
 
 class Encoder(nn.Module):
 
-    def __init__(self, config):
+    def __init__(self, input_size, hidden_size=256):
         super(Encoder, self).__init__()
-        self.model_name = config['model']
-        self.model = AutoModel.from_pretrained(self.model_name)
-        self.model.eval()
+        self.seq1 = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, input_size)
+        )
+        self.seq2 = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, input_size)
+        )
 
     def forward(self, inputs):
-        outputs = self.model(**inputs, return_dict=True)
-        outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask'])
+        outputs = self.seq1(inputs) + inputs
+        outputs = outputs / outputs.norm(dim=-1, keepdim=True)
+        outputs = self.seq2(outputs) + outputs
+        outputs = outputs / outputs.norm(dim=-1, keepdim=True)
         return outputs
+
+

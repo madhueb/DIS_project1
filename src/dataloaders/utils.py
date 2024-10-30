@@ -32,3 +32,4 @@ def get_test_dataloader(config, test_df):
                                               pin_memory=True
                                               )
     return test_loader
+

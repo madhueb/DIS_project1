@@ -64,7 +64,7 @@ def embed(tokens_path, output_path, split_id) -> None:
     docids_i, langs_i, tokenized_all_chunks_i = corpus_i
     # Build dataloader
     dataset = DPRDataset(docids_i, langs_i, tokenized_all_chunks_i)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=16, collate_fn=dataset.collate_fn, shuffle=False, num_workers=4)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=256, collate_fn=dataset.collate_fn, shuffle=False, num_workers=4)
 
     model = AutoModel.from_pretrained("microsoft/mdeberta-v3-base").to("cuda" if torch.cuda.is_available() else "cpu")
 

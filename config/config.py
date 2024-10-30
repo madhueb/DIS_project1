@@ -1,5 +1,5 @@
 import torch
-
+ROOT = '/content/drive/MyDrive'
 CONFIG = {
     'model': 'microsoft/mdeberta-v3-base',
     'dropout': 0.5,
@@ -14,11 +14,15 @@ CONFIG = {
     'freeze_encoder': True,
     'device': 'cuda' if torch.cuda.is_available() else 'cpu',
     'tokenizer_use_fast': False,
-    'save_path': './models/',
-    'load_path': './models/',
-    'train_path': './Data/train.csv',
-    'dev_path': './Data/dev.csv',
-    'test_path': './Data/test.csv',
-    'doc_embeds_path': './Data/corpus.json',
-    'losses_path': './Data/losses.json',
+    'save_path': f'{ROOT}/models/',
+    'load_path': f'{ROOT}/models/',
+    'train_path': f'{ROOT}/train.csv',
+    'dev_path': f'{ROOT}/dev.csv',
+    'train_emb_path': f'{ROOT}/train_emb.csv',
+    'dev_emb_path': f'{ROOT}/dev_emb.csv',
+    'test_path': f'{ROOT}/test.csv',
+    'test_emb_path': f'{ROOT}/test_emb.csv',
+    'doc_embeds_path': f'{ROOT}/doc_embeds.pkl',
+    'doc_encodes_path': f'{ROOT}/doc_encodes.pkl',
+    'losses_path': f'{ROOT}/losses.json',
 }

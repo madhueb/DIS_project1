@@ -13,7 +13,6 @@ class Trainer:
         self.model = model
         self.train_loader, self.val_loader = loaders
         self.config = config
-        self.input_keys = ['input_ids', 'token_type_ids', 'attention_mask']
         self.accelerator = accelerator
         self.model = self.model.to(self.accelerator.device)
 
@@ -115,7 +114,8 @@ class Trainer:
             print(f"valid loss: {self.val_losses[-1]}\n\n")
 
             if self.val_losses[-1] == min(self.val_losses):
-                torch.save(self.model.state_dict(), f"{self.config['save_path']}/best_model.pth")
+                # torch.save(self.model.state_dict(), f"{self.config['save_path']}/best_model.pth")
+                self.model.save(self.config['save_path'])
 
 
     def clear(self):

@@ -1,8 +1,4 @@
 import torch
-from tqdm import tqdm
-from transformers import AutoTokenizer
-
-from src.models.encoder import Encoder
 
 
 def pooling(hidden_states, attention_mask):
