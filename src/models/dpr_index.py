@@ -44,7 +44,9 @@ class DPRIndexModule(nn.Module):
         self.index = {}
         N = config.get('index_N', 128)
         self.doc_ids = {lang: [] for lang in langs}
+        print("Creating index")
         res = faiss.StandardGpuResources()
+        print("Created resources")
         for lang in langs:
             self.index[lang] = faiss.IndexHNSWFlat(embed_size, N, faiss.METRIC_INNER_PRODUCT)
             if config['device'] != 'cpu':
