@@ -21,8 +21,12 @@ CONFIG = {
     'train_emb_path': f'{ROOT}/train_emb.csv',
     'dev_emb_path': f'{ROOT}/dev_emb.csv',
     'test_path': f'{ROOT}/test.csv',
+    'submit_path': f'{ROOT}/submit.csv',
     'test_emb_path': f'{ROOT}/test_emb.csv',
     'doc_embeds_path': f'{ROOT}/doc_embeds.pkl',
     'doc_encodes_path': f'{ROOT}/doc_encodes.pkl',
     'losses_path': f'{ROOT}/losses.json',
+    'k_chunk': 100,
+    'k_doc': 10,
+    'index_N': 128,
 }
