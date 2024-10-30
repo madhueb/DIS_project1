@@ -36,7 +36,7 @@ class DPRDataset(Dataset):
         return inputs
 
     def __len__(self):
-        return len(self.df)
+        return len(self.query_df)
 
     def collate_fn(self, batch):
 
