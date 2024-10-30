@@ -1,4 +1,4 @@
-
+import os
 import pickle
 
 import numpy as np
@@ -16,7 +16,7 @@ from src.models.utils import pooling
 
 class DPRIndexModule(nn.Module):
 
-    def __init__(self, config):
+    def __init__(self, config, load_index=False):
         super(DPRIndexModule, self).__init__()
         self.config = config
         self.k_chunk = config.get('k_chunk', 100)
@@ -27,40 +27,58 @@ class DPRIndexModule(nn.Module):
                 config["model"],
                 use_fast=config.get("use_fast", False),
             )
-        self.q_embedder = AutoModel.from_pretrained(config["model"])
+        self.q_embedder = AutoModel.from_pretrained(config["model"]).to(config['device'])
         embed_size = self.q_embedder.config.hidden_size
         self.q_encoder = Encoder(embed_size).to(config['device'])
         self.q_encoder.load_state_dict(torch.load(f"{config['load_path']}/query_encoder.pth"))
         # put models on eval mode
         self.q_embedder.eval()
         self.q_encoder.eval()
-
         # Get documents encodes
         with open(config['doc_encodes_path'], 'rb') as f:
             self.doc_encodes = pickle.load(f)
             print("Loaded doc encodes")
 
         langs = ['en', 'fr', 'de', 'es', 'it', 'ko', 'ar']
-        self.index = {}
-        N = config.get('index_N', 128)
         self.doc_ids = {lang: [] for lang in langs}
-        print("Creating index")
-        # res = faiss.StandardGpuResources()
-        # print("Created resources")
-        for lang in tqdm(langs):
-            self.index[lang] = faiss.IndexHNSWFlat(embed_size, N, faiss.METRIC_INNER_PRODUCT)
-            # if config['device'] != 'cpu':
-            #     self.index[lang] = faiss.index_cpu_to_gpu(res, 0, self.index[lang])
-        print("Created index")
-        # Add documents to index
-        print("Adding documents to index")
         for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
             self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
-            self.index[encodes_dict['lang']].add(np.array(encodes_dict['encodes'], dtype=np.float32))
 
-        for lang in langs:
-            print(f"Total vectors in {lang} index:", self.index[lang].ntotal)
-            assert len(self.doc_ids[lang]) == self.index[lang].ntotal
+        if not load_index:
+            self.index = {}
+            N = config.get('index_N', 128)
+            encode_lang = {lang: [] for lang in langs}
+            print("Creating index")
+            # res = faiss.StandardGpuResources()
+            # print("Created resources")
+            for lang in tqdm(langs):
+                self.index[lang] = faiss.IndexHNSWFlat(embed_size, N, faiss.METRIC_INNER_PRODUCT)
+                # if config['device'] != 'cpu':
+                #     self.index[lang] = faiss.index_cpu_to_gpu(res, 0, self.index[lang])
+            print("Created index")
+            # Add documents to index
+            print("Adding documents to index")
+            for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
+                # self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
+                encode_lang[encodes_dict['lang']].extend(encodes_dict['encodes'])
+                # self.index[encodes_dict['lang']].add(np.array(encodes_dict['encodes'], dtype=np.float32))
+
+            print("Adding vectors to index")
+            for lang in tqdm(langs):
+                self.index[lang].add(np.array(encode_lang[lang], dtype=np.float32))
+                print(f"Total vectors in {lang} index:", self.index[lang].ntotal)
+                assert len(self.doc_ids[lang]) == self.index[lang].ntotal
+
+            print("Saving index")
+            # Save index
+            os.makedirs(os.path.dirname(config['index_path']), exist_ok=True)
+
+            for lang, index in self.index.items():
+                faiss.write_index(index, f'{config["index_path"]}/{lang}.index')
+        else:
+            self.index = {}
+            for lang in langs:
+                self.index[lang] = faiss.read_index(f'{config["index_path"]}/{lang}.index')
 
 
     def forward(self, query, langs):
