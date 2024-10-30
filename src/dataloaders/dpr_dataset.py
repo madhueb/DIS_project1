@@ -68,14 +68,14 @@ class DPRDataset(Dataset):
         negative_ = torch.stack(negative_)
 
         tmp = 0
-        for i in range(query_positive.shape[0]):
+        for i in range(batch):
             pos_mask = torch.zeros(query_positive.shape[0])
             pos_mask[tmp:tmp + len(batch[i]['positive'])] = 1
             tmp += len(batch[i]['positive'])
             query_positive_masks.append(pos_mask)
 
         tmp = 0
-        for i in range(query_negative.shape[0]):
+        for i in range(batch):
             neg_mask = torch.zeros(query_negative.shape[0])
             neg_mask[tmp:tmp + len(batch[i]['negative'])] = 1
             tmp += len(batch[i]['negative'])
