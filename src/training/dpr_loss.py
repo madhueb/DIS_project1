@@ -20,10 +20,10 @@ class DPRLoss(nn.Module):
         query_negative_masks = inputs['query_negative_mask']
 
         positive_similarity = self.similarity_model(query_positive, positive_)
-        positive_similarity = torch.exp(positive_similarity * query_positive_masks)
+        positive_similarity = torch.sum(torch.exp(positive_similarity) * query_positive_masks, dim=1)
 
         negative_similarity = self.similarity_model(query_negative, negative_)
-        negative_similarity = torch.exp(negative_similarity * query_negative_masks)
+        negative_similarity = torch.sum(torch.exp(negative_similarity) * query_negative_masks, dim=1)
 
         loss = -torch.log(positive_similarity / (positive_similarity + negative_similarity)).mean()
         return loss
