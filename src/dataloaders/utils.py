@@ -12,13 +12,15 @@ def get_train_val_dataloaders(config, train_df, val_df, doc_embeds):
                                                batch_size=config['batch_size'],
                                                shuffle=True,
                                                num_workers=2,
-                                               pin_memory=True
+                                               pin_memory=True,
+                                               collate_fn=train_ds.collate_fn
                                                )
     val_loader = torch.utils.data.DataLoader(val_ds,
                                              batch_size=config['batch_size'],
                                              shuffle=True,
                                              num_workers=2,
-                                             pin_memory=True
+                                             pin_memory=True,
+                                             collate_fn=val_ds.collate_fn
                                              )
 
     return train_loader, val_loader
@@ -29,7 +31,8 @@ def get_test_dataloader(config, test_df):
                                               batch_size=config['batch_size'],
                                               shuffle=False,
                                               num_workers=2,
-                                              pin_memory=True
+                                              pin_memory=True,
+                                              collate_fn=test_ds.collate_fn
                                               )
     return test_loader
 
