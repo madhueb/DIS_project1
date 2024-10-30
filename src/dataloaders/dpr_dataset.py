@@ -12,7 +12,7 @@ class DPRDataset(Dataset):
     def __getitem__(self, idx):
         row = self.query_df.iloc[idx]
         inputs = {
-            "query": torch.tensor(row['query_embed'], dtype=torch.float32),
+            "query": torch.tensor(row['query_embed'][0], dtype=torch.float32),
         }
 
         if self.is_test:
@@ -43,11 +43,12 @@ class DPRDataset(Dataset):
     def collate_fn(self, batch):
 
         return_dict = {}
-        queries = torch.tensor([sample["query"] for sample in batch])
+        queries = [sample["query"] for sample in batch]
 
         if self.is_test:
             return_dict['query_id'] = [sample["query_id"] for sample in batch]
             return_dict['lang'] = [sample["lang"] for sample in batch]
+            queries = torch.stack(queries)
             return_dict['query'] = queries
             return return_dict
 
@@ -62,15 +63,15 @@ class DPRDataset(Dataset):
             query = queries[i]
             positive = batch[i]['positive']
             negative = batch[i]['negative']
-            query_positive.append(torch.cat([query] * len(positive), dim=0))
-            query_negative.append(torch.cat([query] * len(negative), dim=0))
-            positive_.append(positive)
-            negative_.append(negative)
+            query_positive += [query] * len(positive)
+            query_negative += [query] * len(negative)
+            positive_ += positive
+            negative_ += negative
 
-        query_positive = torch.cat(query_positive, dim=0)
-        query_negative = torch.cat(query_negative, dim=0)
-        positive_ = torch.cat(positive_, dim=0)
-        negative_ = torch.cat(negative_, dim=0)
+        query_positive = torch.stack(query_positive)
+        query_negative = torch.stack(query_negative)
+        positive_ = torch.stack(positive_)
+        negative_ = torch.stack(negative_)
 
         tmp = 0
         for i in range(query_positive.shape[0]):
