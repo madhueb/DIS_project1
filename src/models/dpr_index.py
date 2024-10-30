@@ -3,6 +3,7 @@ import pickle
 
 import numpy as np
 import torch
+from tqdm import tqdm
 
 from transformers import AutoTokenizer, AutoModel
 
@@ -37,6 +38,7 @@ class DPRIndexModule(nn.Module):
         # Get documents encodes
         with open(config['doc_encodes_path'], 'rb') as f:
             self.doc_encodes = pickle.load(f)
+            print("Loaded doc encodes")
 
         langs = ['en', 'fr', 'de', 'es', 'it', 'ko', 'ar']
         self.index = {}
@@ -47,11 +49,12 @@ class DPRIndexModule(nn.Module):
             if config['device'] != 'cpu':
                 res = faiss.StandardGpuResources()
                 self.index[lang] = faiss.index_cpu_to_gpu(res, 0, self.index[lang])
-
+        print("Created index")
         # Add documents to index
-        for doc_id, encodes_dict in self.doc_encodes.items():
+        print("Adding documents to index")
+        for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
             self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
-            self.index[encodes_dict['lang']].add(encodes_dict['encodes'])
+            self.index[encodes_dict['lang']].add(np.array(encodes_dict['encodes'], dtype=np.float32))
 
         for lang in langs:
             print(f"Total vectors in {lang} index:", self.index[lang].ntotal)
