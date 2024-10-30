@@ -20,7 +20,7 @@ def query_embedding(query, model, tokenizer, config):
                            add_special_tokens=True,
                            max_length=config['max_length']
                            )
-        inputs = {k: v.to(model.device) for k, v in inputs.items()}
+        inputs = {k: v.to(config['device']) for k, v in inputs.items()}
         outputs = model(**inputs, return_dict=True)
         outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask'])
     return outputs
