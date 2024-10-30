@@ -18,7 +18,7 @@ class DPRModel(nn.Module):
         doc_outputs = self.doc_encoder(doc_embeds)
 
         # cosine similarity
-        cosine_similarity = nn.CosineSimilarity(dim=1)(query_outputs, doc_outputs).unsqueeze(-1)
+        cosine_similarity = nn.CosineSimilarity(dim=1)(query_outputs, doc_outputs)
 
         return cosine_similarity
 
