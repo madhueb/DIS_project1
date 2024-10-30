@@ -25,7 +25,8 @@ class DPRDataset(Dataset):
         positive_sample = torch.tensor(positive_sample, dtype=torch.float32)
 
         negative_indices = row['negative_docs'][1:-1].split(', ')
-        negative_sample_list = [self.doc_embeds[neg_idx]['embeds'] for neg_idx in negative_indices]
+        # negative_sample_list = [self.doc_embeds[neg_idx]['embeds'] for neg_idx in negative_indices]
+        negative_sample_list = [self.doc_embeds[neg_idx[1:-1]]['embeds'] for neg_idx in negative_indices]
         negative_sample = []
         for sample in negative_sample_list:
             negative_sample += sample
