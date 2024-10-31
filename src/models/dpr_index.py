@@ -80,7 +80,6 @@ class DPRIndexModule(nn.Module):
         else:
             self.index = {}
             print("Loading index")
-            os.makedirs(os.path.dirname(config['index_path']), exist_ok=True)
             for lang in tqdm(langs):
                 self.index[lang] = faiss.read_index(f'{config["index_path"]}/{lang}.index')
 
