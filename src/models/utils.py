@@ -22,5 +22,8 @@ def query_embedding(query, model, tokenizer, config):
                            )
         inputs = {k: v.to(config['device']) for k, v in inputs.items()}
         outputs = model(**inputs, return_dict=True)
-        outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask']).cpu().numpy()
+        if config['use_CLS']:
+            outputs = outputs['last_hidden_state'][:, 0, :].cpu().numpy()
+        else:
+            outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask']).cpu().numpy()
     return outputs

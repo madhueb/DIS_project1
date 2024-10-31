@@ -100,7 +100,10 @@ class DPRIndexModule(nn.Module):
                                        )
             inputs = {k: v.to(self.config['device']) for k, v in inputs.items()}
             outputs = self.q_embedder(**inputs, return_dict=True)
-            outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask'])
+            if self.config['use_CLS']:
+                outputs = outputs['last_hidden_state'][:, 0, :]
+            else:
+                outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask'])
             # q_encodes = self.q_encoder(outputs)
             q_encodes = outputs
 
