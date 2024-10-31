@@ -43,6 +43,8 @@ class DPRIndexModule(nn.Module):
         self.doc_ids = {lang: [] for lang in langs}
         for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
             self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
+        for lang in langs:
+            self.doc_ids[lang] = np.array(self.doc_ids[lang])
 
         if not load_index:
             self.index = {}
