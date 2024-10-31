@@ -102,6 +102,10 @@ class DPRIndexModule(nn.Module):
                 lang = langs[i]
                 # Search index
                 _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy().reshape(1, -1), self.k_chunk)
+
+                # flatten the list
+                inds = inds.flatten()
+
                 # Get top k chunks
                 doc_ids = self.doc_ids[lang][inds]
                 # make the list unique
