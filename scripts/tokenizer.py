@@ -27,7 +27,7 @@ def main() -> None:
                 text,
                 padding=False,
                 truncation=False,
-                add_special_tokens=True,
+                add_special_tokens=False,
                 return_tensors="pt",
             )
         tokenized_all_chunks_i.append(tokens["input_ids"].squeeze().tolist())
