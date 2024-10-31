@@ -73,7 +73,7 @@ class DPRIndexModule(nn.Module):
 
             print("Saving index")
             # Save index
-            os.makedirs(os.path.dirname(config['index_path']), exist_ok=True)
+            os.makedirs(config["index_path"], exist_ok=True)
 
             for lang, index in self.index.items():
                 faiss.write_index(index, f'{config["index_path"]}/{lang}.index')
