@@ -77,7 +77,8 @@ class DPRIndexModule(nn.Module):
                 faiss.write_index(index, f'{config["index_path"]}/{lang}.index')
         else:
             self.index = {}
-            for lang in langs:
+            print("Loading index")
+            for lang in tqdm(langs):
                 self.index[lang] = faiss.read_index(f'{config["index_path"]}/{lang}.index')
 
 
@@ -100,7 +101,7 @@ class DPRIndexModule(nn.Module):
             for i, q_encode in enumerate(q_encodes):
                 lang = langs[i]
                 # Search index
-                _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy(), self.k_chunk)
+                _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy().reshape(1, -1), self.k_chunk)
                 # Get top k chunks
                 doc_ids = self.doc_ids[lang][inds]
                 # make the list unique
