@@ -23,7 +23,7 @@ def clean_text(text):
     text = re.sub(r"http[s]?://\S+|www\.\S+", " ", text)
 
     # Step 2: Remove long sequences of non-alphanumeric characters (e.g., encoded data or code)
-    text = re.sub(r"[^\w\s]{4,}", " ", text)  # Removes any sequence of 4 or more non-alphanumeric characters
+    text = re.sub(r"[^\w\s]{10,}", " ", text)  # Removes any sequence of 10 or more non-alphanumeric characters
 
     # Step 3: Remove excessive whitespace
     clean_text = re.sub(r"\s+", " ", text, flags=re.UNICODE).strip()
@@ -93,7 +93,8 @@ def main() -> None:
     corpus_df = pd.read_json(args.corpus)
 
     all_chunks = [
-        chunk_text(clean_text(row["text"]))
+        # chunk_text(clean_text(row["text"]))
+        clean_text(row["text"])
         for _, row in tqdm(corpus_df.iterrows(), total=len(corpus_df))
     ]
     docids = corpus_df["docid"].tolist()
@@ -114,10 +115,10 @@ def main() -> None:
             pickle.dump(corpus_i, f)
         del corpus_i
 
-    corpus = (docids, langs, all_chunks)
-    with open(args.output / "corpus.pkl", "wb") as f:
-        pickle.dump(corpus, f)
-    del corpus
+    # corpus = (docids, langs, all_chunks)
+    # with open(args.output / "corpus.pkl", "wb") as f:
+    #     pickle.dump(corpus, f)
+    # del corpus
 
 
 if __name__ == "__main__":

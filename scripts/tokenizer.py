@@ -22,26 +22,18 @@ def main() -> None:
     )
 
     tokenized_all_chunks_i = []
-    ids = []
-    for i, chunks in enumerate(tqdm(all_chunks_i, desc="Tokenizing")):
-        # try:
-        tokenized_all_chunks_i.append(
-            tokenizer(
-                chunks,
-                padding='max_length',
-                truncation=True,
+    for i, text in enumerate(tqdm(all_chunks_i, desc="Tokenizing")):
+        tokens = tokenizer(
+                text,
+                padding=False,
+                truncation=False,
                 add_special_tokens=True,
-                max_length=512,
                 return_tensors="pt",
             )
-        )
-        ids.append(i)
-        # except Exception as e:
-        #     print(e)
-        #     print(i, docids_i[i])
+        tokenized_all_chunks_i.append(tokens["input_ids"].squeeze().tolist())
 
-    # docids_i = [docids_i[i] for i in ids]
-    # langs_i = [langs_i[i] for i in ids]
+    assert len(tokenized_all_chunks_i) == len(docids_i)
+
     tokenized_corpus_i = (docids_i, langs_i, tokenized_all_chunks_i)
     with open(args.output / f"tokenized_corpus_{args.split_id}.pkl", "wb") as f:
         pickle.dump(tokenized_corpus_i, f)
