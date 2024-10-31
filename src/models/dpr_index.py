@@ -35,14 +35,16 @@ class DPRIndexModule(nn.Module):
         self.q_embedder.eval()
         self.q_encoder.eval()
         # Get documents encodes
-        with open(config['doc_encodes_path'], 'rb') as f:
+        # with open(config['doc_encodes_path'], 'rb') as f:
+        with open(config['doc_embeds_path'], 'rb') as f:
             self.doc_encodes = pickle.load(f)
             print("Loaded doc encodes")
 
         langs = ['en', 'fr', 'de', 'es', 'it', 'ko', 'ar']
         self.doc_ids = {lang: [] for lang in langs}
         for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
-            self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
+            # self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
+            self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['embeds']))
         for lang in langs:
             self.doc_ids[lang] = np.array(self.doc_ids[lang])
 
@@ -62,7 +64,8 @@ class DPRIndexModule(nn.Module):
             print("Adding documents to index")
             for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
                 # self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
-                encode_lang[encodes_dict['lang']].extend(encodes_dict['encodes'])
+                # encode_lang[encodes_dict['lang']].extend(encodes_dict['encodes'])
+                encode_lang[encodes_dict['lang']].extend(encodes_dict['embeds'])
                 # self.index[encodes_dict['lang']].add(np.array(encodes_dict['encodes'], dtype=np.float32))
 
             print("Adding vectors to index")
@@ -98,7 +101,8 @@ class DPRIndexModule(nn.Module):
             inputs = {k: v.to(self.config['device']) for k, v in inputs.items()}
             outputs = self.q_embedder(**inputs, return_dict=True)
             outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask'])
-            q_encodes = self.q_encoder(outputs)
+            # q_encodes = self.q_encoder(outputs)
+            q_encodes = outputs
 
             for i, q_encode in enumerate(q_encodes):
                 lang = langs[i]
@@ -117,16 +121,16 @@ class DPRIndexModule(nn.Module):
                 doc_dict_scores = {}
                 chunk_tensor = []
                 for doc_id in doc_ids:
-                    # doc_dict_scores[doc_id] = 0
-                    chunk_tensor.extend(self.doc_encodes[doc_id]['encodes'])
+                    # chunk_tensor.extend(self.doc_encodes[doc_id]['encodes'])
+                    chunk_tensor.extend(self.doc_encodes[doc_id]['embeds'])
                 chunk_tensor = torch.tensor(chunk_tensor).to(self.config['device'])
                 # chunk_scores = torch.exp(torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor))
                 chunk_scores = torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor)
                 tmp_index = 0
                 for doc_id in doc_ids:
-                    # doc_dict_scores[doc_id] += chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].sum().item()
-                    doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].max().item()
-                    tmp_index += len(self.doc_encodes[doc_id]['encodes'])
+                    # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].max().item()
+                    doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['embeds'])].max().item()
+                    tmp_index += len(self.doc_encodes[doc_id]['embeds'])
 
                 # Sort and get the list of top k docs ids
                 top_k_docs = dict(sorted(doc_dict_scores.items(), key=lambda x: x[1], reverse=True)[:self.k_doc]).keys()
