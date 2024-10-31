@@ -128,8 +128,10 @@ class DPRIndexModule(nn.Module):
                 chunk_scores = torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor)
                 tmp_index = 0
                 for doc_id in doc_ids:
+                    doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].mean().item()
+                    # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].sum().item()
                     # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].max().item()
-                    doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['embeds'])].max().item()
+                    # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['embeds'])].max().item()
                     tmp_index += len(self.doc_encodes[doc_id]['embeds'])
 
                 # Sort and get the list of top k docs ids
