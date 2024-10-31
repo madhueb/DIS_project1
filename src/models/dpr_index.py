@@ -117,13 +117,15 @@ class DPRIndexModule(nn.Module):
                 doc_dict_scores = {}
                 chunk_tensor = []
                 for doc_id in doc_ids:
-                    doc_dict_scores[doc_id] = 0
+                    # doc_dict_scores[doc_id] = 0
                     chunk_tensor.extend(self.doc_encodes[doc_id]['encodes'])
                 chunk_tensor = torch.tensor(chunk_tensor).to(self.config['device'])
-                chunk_scores = torch.exp(torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor))
+                # chunk_scores = torch.exp(torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor))
+                chunk_scores = torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor)
                 tmp_index = 0
                 for doc_id in doc_ids:
-                    doc_dict_scores[doc_id] += chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].sum().item()
+                    # doc_dict_scores[doc_id] += chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].sum().item()
+                    doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].max().item()
                     tmp_index += len(self.doc_encodes[doc_id]['encodes'])
 
                 # Sort and get the list of top k docs ids
