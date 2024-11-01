@@ -28,7 +28,7 @@ CONFIG = {
     'losses_path': f'{ROOT}/losses.json',
     'k_chunk': 100,
     'k_doc': 10,
-    'index_N': 16,
+    'index_N': 256,
     'index_path': f'{ROOT}/index',
     'use_CLS': True,
 }
