@@ -115,6 +115,7 @@ class DPRIndexModule(nn.Module):
 
                 sim = torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(self.all_embeds[lang]), self.all_embeds[lang])
                 top_k_docs = dict(sorted(enumerate(sim.cpu().numpy()), key=lambda x: x[1], reverse=True)[:self.k_doc]).keys()
+                top_k_.append(list(top_k_docs))
 
 
                 # # Search index
