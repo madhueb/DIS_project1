@@ -44,7 +44,7 @@ class DPRIndexModule(nn.Module):
         self.doc_ids = {lang: [] for lang in langs}
         for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
             # self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
-            self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['embeds']))
+            self.doc_ids[encodes_dict['lang']].append(doc_id)
         for lang in langs:
             self.doc_ids[lang] = np.array(self.doc_ids[lang])
 
@@ -65,7 +65,7 @@ class DPRIndexModule(nn.Module):
             for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
                 # self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
                 # encode_lang[encodes_dict['lang']].extend(encodes_dict['encodes'])
-                encode_lang[encodes_dict['lang']].extend(encodes_dict['embeds'])
+                encode_lang[encodes_dict['lang']].append(np.array(encodes_dict['embeds']) / np.linalg.norm(encodes_dict['embeds']))
                 # self.index[encodes_dict['lang']].add(np.array(encodes_dict['encodes'], dtype=np.float32))
 
             print("Adding vectors to index")
@@ -105,40 +105,43 @@ class DPRIndexModule(nn.Module):
             else:
                 outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask'])
             # q_encodes = self.q_encoder(outputs)
-            q_encodes = outputs
+            q_encodes = outputs / torch.norm(outputs, dim=1).unsqueeze(1)
 
             for i, q_encode in enumerate(q_encodes):
                 lang = langs[i]
                 # Search index
-                _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy().reshape(1, -1), self.k_chunk)
+                # _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy().reshape(1, -1), self.k_chunk)
+                _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy().reshape(1, -1), self.k_doc)
 
                 # flatten the list
                 inds = inds.flatten()
 
                 # Get top k chunks
                 doc_ids = self.doc_ids[lang][inds]
-                # make the list unique
-                doc_ids = list(set(doc_ids))
+                top_k_.append(list(doc_ids))
 
-                # Get top k docs
-                doc_dict_scores = {}
-                chunk_tensor = []
-                for doc_id in doc_ids:
-                    # chunk_tensor.extend(self.doc_encodes[doc_id]['encodes'])
-                    chunk_tensor.extend(self.doc_encodes[doc_id]['embeds'])
-                chunk_tensor = torch.tensor(chunk_tensor).to(self.config['device'])
-                # chunk_scores = torch.exp(torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor))
-                chunk_scores = torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor)
-                tmp_index = 0
-                for doc_id in doc_ids:
-                    doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['embeds'])].mean().item()
-                    # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].sum().item()
-                    # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].max().item()
-                    # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['embeds'])].max().item()
-                    tmp_index += len(self.doc_encodes[doc_id]['embeds'])
-
-                # Sort and get the list of top k docs ids
-                top_k_docs = dict(sorted(doc_dict_scores.items(), key=lambda x: x[1], reverse=True)[:self.k_doc]).keys()
-                top_k_.append(list(top_k_docs))
+                # # make the list unique
+                # doc_ids = list(set(doc_ids))
+                #
+                # # Get top k docs
+                # doc_dict_scores = {}
+                # chunk_tensor = []
+                # for doc_id in doc_ids:
+                #     # chunk_tensor.extend(self.doc_encodes[doc_id]['encodes'])
+                #     chunk_tensor.extend(self.doc_encodes[doc_id]['embeds'])
+                # chunk_tensor = torch.tensor(chunk_tensor).to(self.config['device'])
+                # # chunk_scores = torch.exp(torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor))
+                # chunk_scores = torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor)
+                # tmp_index = 0
+                # for doc_id in doc_ids:
+                #     doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['embeds'])].mean().item()
+                #     # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].sum().item()
+                #     # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].max().item()
+                #     # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['embeds'])].max().item()
+                #     tmp_index += len(self.doc_encodes[doc_id]['embeds'])
+                #
+                # # Sort and get the list of top k docs ids
+                # top_k_docs = dict(sorted(doc_dict_scores.items(), key=lambda x: x[1], reverse=True)[:self.k_doc]).keys()
+                # top_k_.append(list(top_k_docs))
 
         return top_k_
