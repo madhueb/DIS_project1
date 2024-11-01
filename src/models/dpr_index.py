@@ -35,8 +35,8 @@ class DPRIndexModule(nn.Module):
         self.q_embedder.eval()
         self.q_encoder.eval()
         # Get documents encodes
-        # with open(config['doc_encodes_path'], 'rb') as f:
-        with open(config['doc_embeds_path'], 'rb') as f:
+        with open(config['doc_encodes_path'], 'rb') as f:
+        # with open(config['doc_embeds_path'], 'rb') as f:
             self.doc_encodes = pickle.load(f)
             print("Loaded doc encodes")
 
@@ -48,46 +48,55 @@ class DPRIndexModule(nn.Module):
         for lang in langs:
             self.doc_ids[lang] = np.array(self.doc_ids[lang])
 
-        self.all_embeds = {lang: [] for lang in langs}
+        self.all_embeds = {}
 
-        if not load_index:
-            self.index = {}
-            N = config.get('index_N', 128)
-            encode_lang = {lang: [] for lang in langs}
-            print("Creating index")
-            # res = faiss.StandardGpuResources()
-            # print("Created resources")
-            for lang in tqdm(langs):
-                self.index[lang] = faiss.IndexHNSWFlat(embed_size, N, faiss.METRIC_INNER_PRODUCT)
-                # if config['device'] != 'cpu':
-                #     self.index[lang] = faiss.index_cpu_to_gpu(res, 0, self.index[lang])
-            print("Created index")
-            # Add documents to index
-            print("Adding documents to index")
-            for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
-                # self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
-                # encode_lang[encodes_dict['lang']].extend(encodes_dict['encodes'])
-                encode_lang[encodes_dict['lang']].append(np.array(encodes_dict['embeds']) / np.linalg.norm(encodes_dict['embeds']))
-                # self.index[encodes_dict['lang']].add(np.array(encodes_dict['encodes'], dtype=np.float32))
+        encode_lang = {lang: [] for lang in langs}
+        for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
+            encode_lang[encodes_dict['lang']].append(
+                # np.array(encodes_dict['embeds']) / np.linalg.norm(encodes_dict['embeds']))
+                np.array(encodes_dict['encodes']) / np.linalg.norm(encodes_dict['encodes']))
 
-            print("Adding vectors to index")
-            for lang in tqdm(langs):
-                self.index[lang].add(np.array(encode_lang[lang], dtype=np.float32))
-                self.all_embeds[lang] = torch.tensor(encode_lang[lang]).to(config['device'])
-                print(f"Total vectors in {lang} index:", self.index[lang].ntotal)
-                assert len(self.doc_ids[lang]) == self.index[lang].ntotal
+        print("Adding vectors to index")
+        for lang in tqdm(langs):
+            self.all_embeds[lang] = torch.tensor(encode_lang[lang]).to(config['device'])
 
-            print("Saving index")
-            # Save index
-            os.makedirs(config["index_path"], exist_ok=True)
-
-            for lang, index in self.index.items():
-                faiss.write_index(index, f'{config["index_path"]}/{lang}.index')
-        else:
-            self.index = {}
-            print("Loading index")
-            for lang in tqdm(langs):
-                self.index[lang] = faiss.read_index(f'{config["index_path"]}/{lang}.index')
+        # if not load_index:
+        #     self.index = {}
+        #     N = config.get('index_N', 128)
+        #     encode_lang = {lang: [] for lang in langs}
+        #     print("Creating index")
+        #     # res = faiss.StandardGpuResources()
+        #     # print("Created resources")
+        #     for lang in tqdm(langs):
+        #         self.index[lang] = faiss.IndexHNSWFlat(embed_size, N, faiss.METRIC_INNER_PRODUCT)
+        #         # if config['device'] != 'cpu':
+        #         #     self.index[lang] = faiss.index_cpu_to_gpu(res, 0, self.index[lang])
+        #     print("Created index")
+        #     # Add documents to index
+        #     print("Adding documents to index")
+        #     for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
+        #         # self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
+        #         # encode_lang[encodes_dict['lang']].extend(encodes_dict['encodes'])
+        #         encode_lang[encodes_dict['lang']].append(np.array(encodes_dict['embeds']) / np.linalg.norm(encodes_dict['embeds']))
+        #         # self.index[encodes_dict['lang']].add(np.array(encodes_dict['encodes'], dtype=np.float32))
+        #
+        #     print("Adding vectors to index")
+        #     for lang in tqdm(langs):
+        #         self.index[lang].add(np.array(encode_lang[lang], dtype=np.float32))
+        #         print(f"Total vectors in {lang} index:", self.index[lang].ntotal)
+        #         assert len(self.doc_ids[lang]) == self.index[lang].ntotal
+        #
+        #     print("Saving index")
+        #     # Save index
+        #     os.makedirs(config["index_path"], exist_ok=True)
+        #
+        #     for lang, index in self.index.items():
+        #         faiss.write_index(index, f'{config["index_path"]}/{lang}.index')
+        # else:
+        #     self.index = {}
+        #     print("Loading index")
+        #     for lang in tqdm(langs):
+        #         self.index[lang] = faiss.read_index(f'{config["index_path"]}/{lang}.index')
 
 
     def forward(self, query, langs):
@@ -107,7 +116,7 @@ class DPRIndexModule(nn.Module):
                 outputs = outputs['last_hidden_state'][:, 0, :]
             else:
                 outputs = pooling(outputs['last_hidden_state'], inputs['attention_mask'])
-            # q_encodes = self.q_encoder(outputs)
+            outputs = self.q_encoder(outputs)
             q_encodes = outputs / torch.norm(outputs, dim=1).unsqueeze(1)
 
             for i, q_encode in enumerate(q_encodes):

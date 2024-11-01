@@ -19,7 +19,8 @@ class Encoder(nn.Module):
     def forward(self, inputs):
         outputs = self.seq1(inputs) + inputs
         outputs = outputs / outputs.norm(dim=-1, keepdim=True)
-        outputs = self.seq2(outputs) + outputs
+        # outputs = self.seq2(outputs) + outputs
+        outputs = self.seq2(outputs)
         outputs = outputs / outputs.norm(dim=-1, keepdim=True)
         return outputs
 

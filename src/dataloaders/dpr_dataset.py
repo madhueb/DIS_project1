@@ -21,11 +21,12 @@ class DPRDataset(Dataset):
             return inputs
 
         positive_idx = row['positive_docs']
-        positive_sample = [torch.tensor(pos, dtype=torch.float32) for pos in self.doc_embeds[positive_idx]['embeds']]
+        # positive_sample = [torch.tensor(pos, dtype=torch.float32) for pos in self.doc_embeds[positive_idx]['embeds']]
+        positive_sample = [torch.tensor(self.doc_embeds[positive_idx]['embeds'], dtype=torch.float32)]
 
         negative_indices = row['negative_docs'][1:-1].split(', ')
-        negative_sample = [torch.tensor(neg, dtype=torch.float32) for neg_idx in negative_indices for neg in self.doc_embeds[neg_idx[1:-1]]['embeds']]
-
+        # negative_sample = [torch.tensor(neg, dtype=torch.float32) for neg_idx in negative_indices for neg in self.doc_embeds[neg_idx[1:-1]]['embeds']]
+        negative_sample = [torch.tensor(self.doc_embeds[neg_idx[1:-1]]['embeds'], dtype=torch.float32) for neg_idx in negative_indices]
         inputs['positive'] = positive_sample
         inputs['negative'] = negative_sample
 
