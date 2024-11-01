@@ -48,6 +48,8 @@ class DPRIndexModule(nn.Module):
         for lang in langs:
             self.doc_ids[lang] = np.array(self.doc_ids[lang])
 
+        self.all_embeds = {lang: [] for lang in langs}
+
         if not load_index:
             self.index = {}
             N = config.get('index_N', 128)
@@ -71,6 +73,7 @@ class DPRIndexModule(nn.Module):
             print("Adding vectors to index")
             for lang in tqdm(langs):
                 self.index[lang].add(np.array(encode_lang[lang], dtype=np.float32))
+                self.all_embeds[lang] = torch.tensor(encode_lang[lang]).to(config['device'])
                 print(f"Total vectors in {lang} index:", self.index[lang].ntotal)
                 assert len(self.doc_ids[lang]) == self.index[lang].ntotal
 
@@ -109,16 +112,21 @@ class DPRIndexModule(nn.Module):
 
             for i, q_encode in enumerate(q_encodes):
                 lang = langs[i]
-                # Search index
-                # _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy().reshape(1, -1), self.k_chunk)
-                _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy().reshape(1, -1), self.k_doc)
 
-                # flatten the list
-                inds = inds.flatten()
+                sim = torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(self.all_embeds[lang]), self.all_embeds[lang])
+                top_k_docs = dict(sorted(enumerate(sim.cpu().numpy()), key=lambda x: x[1], reverse=True)[:self.k_doc]).keys()
 
-                # Get top k chunks
-                doc_ids = self.doc_ids[lang][inds]
-                top_k_.append(list(doc_ids))
+
+                # # Search index
+                # # _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy().reshape(1, -1), self.k_chunk)
+                # _, inds = self.index[lang].search(q_encodes[i].detach().cpu().numpy().reshape(1, -1), self.k_doc)
+                #
+                # # flatten the list
+                # inds = inds.flatten()
+                #
+                # # Get top k chunks
+                # doc_ids = self.doc_ids[lang][inds]
+                # top_k_.append(list(doc_ids))
 
                 # # make the list unique
                 # doc_ids = list(set(doc_ids))
