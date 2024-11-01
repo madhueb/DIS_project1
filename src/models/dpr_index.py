@@ -113,7 +113,10 @@ class DPRIndexModule(nn.Module):
             for i, q_encode in enumerate(q_encodes):
                 lang = langs[i]
 
-                sim = torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(self.all_embeds[lang]), self.all_embeds[lang])
+                # sim = torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(self.all_embeds[lang]), self.all_embeds[lang])
+
+                # inner product instead of cosine similarity
+                sim = (q_encode.unsqueeze(0).expand_as(self.all_embeds[lang]) * self.all_embeds[lang]).sum(dim=1)
                 top_k_docs = dict(sorted(enumerate(sim.cpu().numpy()), key=lambda x: x[1], reverse=True)[:self.k_doc]).keys()
                 top_k_.append(list(self.doc_ids[lang][list(top_k_docs)]))
 
