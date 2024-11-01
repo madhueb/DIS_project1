@@ -54,7 +54,7 @@ class DPRIndexModule(nn.Module):
         for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
             encode_lang[encodes_dict['lang']].append(
                 # np.array(encodes_dict['embeds']) / np.linalg.norm(encodes_dict['embeds']))
-                np.array(encodes_dict['encodes']) / np.linalg.norm(encodes_dict['encodes']))
+                np.array(encodes_dict['encode']) / np.linalg.norm(encodes_dict['encode']))
 
         print("Adding vectors to index")
         for lang in tqdm(langs):
@@ -75,10 +75,10 @@ class DPRIndexModule(nn.Module):
         #     # Add documents to index
         #     print("Adding documents to index")
         #     for doc_id, encodes_dict in tqdm(self.doc_encodes.items()):
-        #         # self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encodes']))
-        #         # encode_lang[encodes_dict['lang']].extend(encodes_dict['encodes'])
+        #         # self.doc_ids[encodes_dict['lang']].extend([doc_id] * len(encodes_dict['encode']))
+        #         # encode_lang[encodes_dict['lang']].extend(encodes_dict['encode'])
         #         encode_lang[encodes_dict['lang']].append(np.array(encodes_dict['embeds']) / np.linalg.norm(encodes_dict['embeds']))
-        #         # self.index[encodes_dict['lang']].add(np.array(encodes_dict['encodes'], dtype=np.float32))
+        #         # self.index[encodes_dict['lang']].add(np.array(encodes_dict['encode'], dtype=np.float32))
         #
         #     print("Adding vectors to index")
         #     for lang in tqdm(langs):
@@ -148,7 +148,7 @@ class DPRIndexModule(nn.Module):
                 # doc_dict_scores = {}
                 # chunk_tensor = []
                 # for doc_id in doc_ids:
-                #     # chunk_tensor.extend(self.doc_encodes[doc_id]['encodes'])
+                #     # chunk_tensor.extend(self.doc_encodes[doc_id]['encode'])
                 #     chunk_tensor.extend(self.doc_encodes[doc_id]['embeds'])
                 # chunk_tensor = torch.tensor(chunk_tensor).to(self.config['device'])
                 # # chunk_scores = torch.exp(torch.nn.CosineSimilarity(dim=1)(q_encode.unsqueeze(0).expand_as(chunk_tensor), chunk_tensor))
@@ -156,8 +156,8 @@ class DPRIndexModule(nn.Module):
                 # tmp_index = 0
                 # for doc_id in doc_ids:
                 #     doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['embeds'])].mean().item()
-                #     # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].sum().item()
-                #     # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encodes'])].max().item()
+                #     # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encode'])].sum().item()
+                #     # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['encode'])].max().item()
                 #     # doc_dict_scores[doc_id] = chunk_scores[tmp_index:tmp_index + len(self.doc_encodes[doc_id]['embeds'])].max().item()
                 #     tmp_index += len(self.doc_encodes[doc_id]['embeds'])
                 #
