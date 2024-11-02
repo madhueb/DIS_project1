@@ -11,7 +11,7 @@ import re
 import string
 import os
 import spacy.cli
-
+from tqdm import tqdm
 
 LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
 
@@ -37,10 +37,13 @@ class BaseTokenizer:
     def tokenize_batch(
         self, texts: List[str], batch_size: int = 64, n_process: int = -1
     ) -> List[List[str]]:
+        print("Tokenizing...")
         preprocessed_texts = [self.preprocess_text(text) for text in texts]
+        print("Preprocessed...")
         docs = self.nlp.pipe(
             preprocessed_texts, batch_size=batch_size, n_process=n_process
         )
+        print("Docs...")
         tokenized_texts = [
             [
                 token.lemma_
@@ -49,7 +52,7 @@ class BaseTokenizer:
                 and not token.is_punct
                 # and self.TOKEN_PATTERN.match(token.text)
             ]
-            for doc in docs
+            for doc in tqdm(docs)
         ]
         return tokenized_texts
 

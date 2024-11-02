@@ -57,6 +57,7 @@ class BaseTokenizer:
     def tokenize_batch(
             self, texts: List[str], cores: int = 10
     ) -> List[List[str]]:
+        print("Tokenizing...")
         with Pool(cores) as pool:
             results = pool.map(self.preprocess_text, texts)
         return results
