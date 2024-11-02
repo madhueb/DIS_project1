@@ -152,3 +152,6 @@ def main():
         pickle.dump(tokenized_texts, f)
 
 
+
+if __name__ == "__main__":
+    main()
