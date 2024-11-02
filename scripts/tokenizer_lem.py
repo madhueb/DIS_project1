@@ -59,8 +59,7 @@ class BaseTokenizer:
             [
                 ent.text
                 for ent in doc.ents
-                if not ent.text.is_stop
-                and not ent.text.is_punct
+                if not ent.text in self.stop_words
                 # and self.TOKEN_PATTERN.match(token.text)
             ]
             for doc in tqdm(docs)
