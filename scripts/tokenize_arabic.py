@@ -77,7 +77,6 @@ def main():
     parser.add_argument("-n", "--num_splits", type=int, required=True)
     parser.add_argument("-i", "--split_index", type=int, required=True)
     parser.add_argument("-b", "--batch_size", type=int, default=64)
-    parser.add_argument("-c", "--cores", type=int, default=10)
 
     args = parser.parse_args()
 
@@ -117,7 +116,7 @@ def main():
 
     output_file = (
             args.output_dir
-            / f"tokens_{args.language}_{args.split_index}_{args.num_splits}.json"
+            / f"tokens_{args.language}_{args.split_index}_{args.num_splits}.pkl"
     )
     os.makedirs(args.output_dir, exist_ok=True)
 
