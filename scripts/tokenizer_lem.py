@@ -21,7 +21,8 @@ class BaseTokenizer:
 
     def __init__(self, model_name: str):
         spacy.cli.download(model_name)
-        self.nlp = spacy.load(model_name, exclude=["senter"])
+        # self.nlp = spacy.load(model_name, exclude=["senter"])
+        self.nlp = spacy.load(model_name, exclude=["senter", "ner"])
         self.stop_words = set(self.nlp.Defaults.stop_words)
 
     @staticmethod
@@ -55,16 +56,17 @@ class BaseTokenizer:
             ]
             for doc in tqdm(docs)
         ]
-        tokenized_texts_ner = [
-            [
-                ent.text
-                for ent in doc.ents
-                if not ent.text in self.stop_words
-                # and self.TOKEN_PATTERN.match(token.text)
-            ]
-            for doc in tqdm(docs)
-        ]
-        return tokenized_texts, tokenized_texts_ner
+        # tokenized_texts_ner = [
+        #     [
+        #         ent.text
+        #         for ent in doc.ents
+        #         if not ent.text in self.stop_words
+        #         # and self.TOKEN_PATTERN.match(token.text)
+        #     ]
+        #     for doc in tqdm(docs)
+        # ]
+        # return tokenized_texts, tokenized_texts_ner
+        return tokenized_texts
 
 
 class EnglishTokenizer(BaseTokenizer):
@@ -154,7 +156,8 @@ def main():
     else:
         raise KeyError("language")
 
-    tokenized_texts, texts_ner = tokenizer.tokenize_batch(corpus_df["text"].tolist(), batch_size=args.batch_size, n_process=args.cores)
+    # tokenized_texts, texts_ner = tokenizer.tokenize_batch(corpus_df["text"].tolist(), batch_size=args.batch_size, n_process=args.cores)
+    tokenized_texts = tokenizer.tokenize_batch(corpus_df["text"].tolist(), batch_size=args.batch_size, n_process=args.cores)
 
     output_file = (
         args.output_dir
@@ -165,15 +168,15 @@ def main():
     with open(output_file, "wb") as f:
         pickle.dump(tokenized_texts, f)
 
-    output_file_ner = (
-        args.output_dir
-        / f"ner_{args.language}_{args.split_index}_{args.num_splits}.pkl"
-    )
-    os.makedirs(args.output_dir, exist_ok=True)
-
-    with open(output_file_ner, "wb") as f:
-        pickle.dump(texts_ner, f)
-
+    # output_file_ner = (
+    #     args.output_dir
+    #     / f"ner_{args.language}_{args.split_index}_{args.num_splits}.pkl"
+    # )
+    # os.makedirs(args.output_dir, exist_ok=True)
+    #
+    # with open(output_file_ner, "wb") as f:
+    #     pickle.dump(texts_ner, f)
+    #
 
 
 if __name__ == "__main__":
