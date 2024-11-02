@@ -10,6 +10,8 @@ import spacy
 import re
 import string
 import os
+import spacy.cli
+
 
 LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
 
@@ -18,6 +20,7 @@ class BaseTokenizer:
     # TOKEN_PATTERN = re.compile(r"^[\w.-]+(?:'[\w]+)?$")
 
     def __init__(self, model_name: str):
+        spacy.cli.download(model_name)
         self.nlp = spacy.load(model_name, exclude=["senter", "ner"])
 
     @staticmethod
