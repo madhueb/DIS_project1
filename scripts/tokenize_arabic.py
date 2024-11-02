@@ -8,20 +8,30 @@ from typing import List
 from typing import List
 import spacy
 import re
+from multiprocessing import Pool
+
 import string
+from camel_tools.utils.dediac import dediac_ar
+from camel_tools.tokenizers.word import simple_word_tokenize
+from camel_tools.lemmatizer import Lemmatizer
+
+from nltk.corpus import stopwords
+import nltk
+
 import os
 
-LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
+LANGS = ["ar"]
 
 
 class BaseTokenizer:
-    # TOKEN_PATTERN = re.compile(r"^[\w.-]+(?:'[\w]+)?$")
 
-    def __init__(self, model_name: str):
-        self.nlp = spacy.load(model_name, exclude=["senter", "ner"])
+    def __init__(self):
+        nltk.download('stopwords')
+        self.stop_words = set(stopwords.words('arabic'))
+        self.lemmatizer = Lemmatizer()
 
-    @staticmethod
-    def preprocess_text(text: str) -> str:
+
+    def preprocess_text(self, text: str) -> List[str]:
         # Step 1: Remove URLs
         text = re.sub(r"http[s]?://\S+|www\.\S+", " ", text)
 
@@ -29,57 +39,33 @@ class BaseTokenizer:
         text = re.sub(r"[^\w\s]{4,}", " ", text)  # Removes any sequence of 4 or more non-alphanumeric characters
 
         # Step 3: Remove excessive whitespace
-        return re.sub(r"\s+", " ", text.replace("\n", " ")).strip().lower()
+        text = re.sub(r"\s+", " ", text.replace("\n", " ")).strip().lower()
+
+        # Step 4: Remove diacritics
+        text = dediac_ar(text)
+
+        # Step 5: Tokenize text
+        tokens = simple_word_tokenize(text)
+
+        # Step 6: Lemmatize each token and remove stopwords
+        processed_tokens = [
+            self.lemmatizer.lemmatize(token)[0] for token in tokens if token not in self.stop_words
+        ]
+        return processed_tokens
+
 
     def tokenize_batch(
-        self, texts: List[str], batch_size: int = 64, n_process: int = -1
+            self, texts: List[str], cores: int = 10
     ) -> List[List[str]]:
-        preprocessed_texts = [self.preprocess_text(text) for text in texts]
-        docs = self.nlp.pipe(
-            preprocessed_texts, batch_size=batch_size, n_process=n_process
-        )
-        tokenized_texts = [
-            [
-                token.lemma_
-                for token in doc
-                if not token.is_stop
-                and not token.is_punct
-                # and self.TOKEN_PATTERN.match(token.text)
-            ]
-            for doc in docs
-        ]
-        return tokenized_texts
+        with Pool(cores) as pool:
+            results = pool.map(self.preprocess_text, texts)
+        return results
 
 
-class EnglishTokenizer(BaseTokenizer):
+class ArabicTokenizer(BaseTokenizer):
     def __init__(self):
-        super().__init__("en_core_web_sm")
-
-
-class FrenchTokenizer(BaseTokenizer):
-    def __init__(self):
-        super().__init__("fr_core_news_sm")
-
-
-class ItalianTokenizer(BaseTokenizer):
-    def __init__(self):
-        super().__init__("it_core_news_sm")
-
-
-class GermanTokenizer(BaseTokenizer):
-    def __init__(self):
-        super().__init__("de_core_news_sm")
-
-
-class SpanishTokenizer(BaseTokenizer):
-    def __init__(self):
-        super().__init__("es_core_news_sm")
-
-
-class KoreanTokenizer(BaseTokenizer):
-    def __init__(self):
-        super().__init__("ko_core_news_sm")
-
+        # multi linguistic model
+        super().__init__()
 
 def main():
     parser = argparse.ArgumentParser()
@@ -90,6 +76,7 @@ def main():
     parser.add_argument("-n", "--num_splits", type=int, required=True)
     parser.add_argument("-i", "--split_index", type=int, required=True)
     parser.add_argument("-b", "--batch_size", type=int, default=64)
+    parser.add_argument("-c", "--cores", type=int, default=10)
 
     args = parser.parse_args()
 
@@ -120,28 +107,16 @@ def main():
         end_index = start_index + records_per_split
     corpus_df = corpus_df.iloc[start_index:end_index]
 
-    if args.language == "en":
-        tokenizer = EnglishTokenizer()
-    elif args.language == "fr":
-        tokenizer = FrenchTokenizer()
-    elif args.language == "de":
-        tokenizer = GermanTokenizer()
-    elif args.language == "it":
-        tokenizer = ItalianTokenizer()
-    elif args.language == "es":
-        tokenizer = SpanishTokenizer()
-    elif args.language == "ar":
-        pass
-    elif args.language == "ko":
-        tokenizer = KoreanTokenizer()
+    if args.language == "ar":
+        tokenizer = ArabicTokenizer()
     else:
         raise KeyError("language")
 
-    tokenized_texts = tokenizer.tokenize_batch(corpus_df["text"].tolist(), batch_size=args.batch_size)
+    tokenized_texts = tokenizer.tokenize_batch(corpus_df["text"].tolist(), cores=args.cores)
 
     output_file = (
-        args.output_dir
-        / f"tokens_{args.language}_{args.split_index}_{args.num_splits}.json"
+            args.output_dir
+            / f"tokens_{args.language}_{args.split_index}_{args.num_splits}.json"
     )
     os.makedirs(args.output_dir, exist_ok=True)
 
