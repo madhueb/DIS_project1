@@ -90,8 +90,16 @@ def retrieve_top_k (query,k=10):
 
 if __name__ == "__main__":
     
-    #Load query :
-    queries = pd.read_csv("data/test.csv")
+    # #Load query :
+    # queries = pd.read_csv("data/test.csv")
+    # queries ["doc_ids"] = queries.apply(retrieve_top_k)
+    # submission = queries[["id","doc_ids"]]
+    # pd.to_csv("submission.csv",index=False)
+
+    queries = pd.read_csv("data/dev.csv")
     queries ["doc_ids"] = queries.apply(retrieve_top_k)
-    submission = queries[["id","doc_ids"]]
-    pd.to_csv("submission.csv",index=False)
+    for i, row in queries.iterrows():
+        if row["positive_docs"] in row["doc_ids"]:
+            print("Document found in top 10")
+        else:
+            print("Document not found in top 10")
