@@ -5,6 +5,7 @@ from scipy.sparse import save_npz, load_npz
 from scipy.sparse.linalg import norm
 from tqdm import tqdm
 import pickle
+import numpy as np
 
 
 
@@ -60,11 +61,12 @@ class Tf_Idf_Vectorizer:
                     idx = self.vocab[word]
                     tf[i, idx] += 1
 
-        tf = tf / norm(tf, axis=1)[:, None]
+        tf = tf / torch.norm(tf, axis=1)[:, None]
         # Compute the TF-IDF matrix
         tf_sparse = csr_matrix(tf)  
         idf_sparse = csr_matrix(self.idf)
-        tf_idf = tf_sparse@idf_sparse
+        #tf_idf = tf_sparse@idf_sparse
+        tf_idf = tf_sparse.multiply(idf_sparse)
         return tf_idf
 
     def fit_transform(self, documents):
