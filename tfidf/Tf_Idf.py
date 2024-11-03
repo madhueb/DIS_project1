@@ -2,7 +2,7 @@ import torch
 from tqdm import tqdm
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import norm
-import tqdm
+from tqdm import tqdm
 
 
 

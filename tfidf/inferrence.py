@@ -70,7 +70,6 @@ def preprocess_query(query):
     
 
 def retrieve_top_k (query,k=10):
-    print(query)
     lang = query["lang"]
     query = preprocess_query(query)
     #load tfidf model
@@ -107,7 +106,6 @@ if __name__ == "__main__":
 
     queries = pd.read_csv(f'{args.token_dir}/dev.csv')
     queries = queries[queries["lang"]=="fr"]
-    print(queries.columns)
     queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
     for i, row in queries.iterrows():
         if row["positive_docs"] in row["doc_ids"]:
