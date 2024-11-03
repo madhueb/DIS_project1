@@ -87,6 +87,7 @@ def main():
     parser.add_argument("-n", "--num_splits", type=int, required=True)
     parser.add_argument("-i", "--split_index", type=int, required=True)
     parser.add_argument("-b", "--batch_size", type=int, default=64)
+    parser.add_argument("-p", "--cores", type=int, default=10)
 
     args = parser.parse_args()
 
