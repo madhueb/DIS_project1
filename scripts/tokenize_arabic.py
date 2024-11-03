@@ -44,8 +44,13 @@ class BaseTokenizer:
         # Step 2: Remove long sequences of non-alphanumeric characters (e.g., encoded data or code)
         text = re.sub(r"[^\w\s]{4,}", " ", text)  # Removes any sequence of 4 or more non-alphanumeric characters
 
-        # Step 3: Remove excessive whitespace
+        text = text.translate(self.translator)
+
+        # Step 4: Remove excessive whitespace
         text = re.sub(r"\s+", " ", text.replace("\n", " ")).strip().lower()
+
+        # Step 5: Remove diacritics
+        text = dediac_ar(text)
 
         # Step 6: Tokenize text
         tokens = simple_word_tokenize(text)
