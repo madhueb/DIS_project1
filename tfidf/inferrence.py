@@ -90,7 +90,7 @@ def retrieve_top_k (query,k=10):
     top_k_index = tfidf.batch(tfidf_matrix, query, 1000, 10)
 
     doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
-    pos_doc_index = doc_ids.index(pos_doc)
+    pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
 
     print("similarity with positive doc : ", cosine_similarity(query, tfidf_matrix[pos_doc_index]))
     for i in top_k_index:  
