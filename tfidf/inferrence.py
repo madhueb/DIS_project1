@@ -67,7 +67,7 @@ def preprocess_query(query):
         nlp = spacy.load(lang+"_core_news_sm")
         doc = nlp(text)
         tokens = [token.lemma_ for token in doc if not token.is_stop and not token.is_punct]
-        return " ".join(tokens)
+        return tokens
     
 
 lang = "fr"
@@ -85,12 +85,13 @@ def retrieve_top_k (query,k=10):
 
     
     #transform query
-    query = tfidf.transform([query])
+    # query = tfidf.transform([query])
+    query = tfidf.transform(query)
     #tfidf_matrix = tfidf.tfidf_matrix
 
     #Compute cosine similarity by batches :
 
-    top_k_index = tfidf.batch(tfidf.tfidf_matrix, query, 1000, 10)
+    top_k_index = tfidf.batch(tfidf.tfidf_matrix, query, 5000, 10)
 
     doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
     pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
