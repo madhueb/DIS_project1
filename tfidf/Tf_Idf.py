@@ -80,7 +80,7 @@ class Tf_Idf_Vectorizer:
         # Compute the cosine similarity between the query and the documents
         top_k_sims = {}
         num_docs = tfidf.shape[0]
-        tf_q = torch.tensor(tf_q.toarray(), device=self.device).unsqueeze(0)
+        tf_q = torch.tensor(tf_q.toarray(), device=self.device)
         # norm
         tf_q_norm = torch.norm(tf_q)
         for i in tqdm(range(0, num_docs, batch_size)):

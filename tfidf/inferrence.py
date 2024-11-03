@@ -86,7 +86,7 @@ def retrieve_top_k (query,k=10):
     
     #transform query
     # query = tfidf.transform([query])
-    query = tfidf.transform(query)
+    query = tfidf.transform([query])
     #tfidf_matrix = tfidf.tfidf_matrix
 
     #Compute cosine similarity by batches :
