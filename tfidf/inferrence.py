@@ -14,8 +14,7 @@ import json
 import argparse
 from pathlib import Path
 
-with open("./Data/corpus.json/corpus.json", "r") as f:
-    documents = json.load(f)
+
 
 
 def preprocess_query(query):
@@ -104,6 +103,9 @@ if __name__ == "__main__":
     # submission = queries[["id","doc_ids"]]
     # pd.to_csv("submission.csv",index=False)
 
+    with open(args.token_dir+"/corpus.json/corpus.json", "r") as f:
+        documents = json.load(f)
+
     queries = pd.read_csv(args.token_dir+"/dev.csv")
     queries ["doc_ids"] = queries.apply(retrieve_top_k)
     for i, row in queries.iterrows():
@@ -111,3 +113,4 @@ if __name__ == "__main__":
             print("Document found in top 10")
         else:
             print("Document not found in top 10")
+
