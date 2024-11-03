@@ -64,7 +64,7 @@ class Tf_Idf_Vectorizer:
         # Compute the TF-IDF matrix
         tf_sparse = csr_matrix(tf)  
         idf_sparse = csr_matrix(self.idf)
-        tf_idf = tf_sparse.multiply(idf_sparse)
+        tf_idf = tf_sparse@idf_sparse
         return tf_idf
 
     def fit_transform(self, documents):
