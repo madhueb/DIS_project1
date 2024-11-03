@@ -67,14 +67,16 @@ def preprocess_query(query):
         tokens = [token.lemma_ for token in doc if not token.is_stop and not token.is_punct]
         return " ".join(tokens)
     
-    
+
+lang = "fr"
+with open("tfidf"+lang+".pkl", "rb") as f:
+    tfidf = pickle.load(f)
 
 def retrieve_top_k (query,k=10):
     lang = query["lang"]
     query = preprocess_query(query)
     #load tfidf model
-    with open("tfidf"+lang+".pkl", "rb") as f:
-        tfidf = pickle.load(f)
+
     
     #transform query
     query = tfidf.transform([query])
@@ -106,7 +108,7 @@ if __name__ == "__main__":
         documents = json.load(f)
 
     queries = pd.read_csv(f'{args.token_dir}/dev.csv')
-    queries = queries[queries["lang"]=="fr"][:2]
+    queries = queries[queries["lang"]=="fr"]
     queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
     print(queries)
     for i, row in queries.iterrows():
