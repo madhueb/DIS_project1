@@ -76,7 +76,7 @@ for lang in LANGS:
         tfidfs[lang] = pickle.load(f)
 
 # load doc ids dict with json
-with open("../data/ids_dict.json", "r") as f:
+with open("/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/data/ids_dict.json", "r") as f:
     ids_dict = json.load(f)
 
 
