@@ -77,7 +77,7 @@ class Tf_Idf_Vectorizer:
         self.tfidf_matrix = self.transform(documents)
 
     @torch.no_grad()
-    def batch (self ,tfidf, tf_q, batch_size, k):
+    def batch (self, tfidf, tf_q, batch_size, k):
         # Compute the cosine similarity between the query and the documents
         top_k_sims = []
         num_docs = tfidf.shape[0]
@@ -92,7 +92,7 @@ class Tf_Idf_Vectorizer:
             # top_k_index = i + sims.argsort(axis=0)[-k:]
             top_k_index = torch.topk(sims.T, k, largest=True).indices.flatten()
             # top_k_sims.update({idx: sims[idx-i] for idx in top_k_index})
-            top_k_sims.extend([(idx, sims[idx-i].item()) for idx in top_k_index])
+            top_k_sims.extend([(i + idx, sims[idx].item()) for idx in top_k_index])
         
         top_k = list(dict(sorted(top_k_sims.items(), key=lambda x: x[1], reverse=True)).keys())
         return top_k

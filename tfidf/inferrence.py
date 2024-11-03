@@ -84,7 +84,7 @@ def retrieve_top_k (query, batch_size=1000, k=10):
     lang = query["lang"]
 
     tfidf = tfidfs[lang]
-    pos_doc = query["positive_docs"]
+    # pos_doc = query["positive_docs"]
 
     query = preprocess_query(query)
     #load tfidf model
