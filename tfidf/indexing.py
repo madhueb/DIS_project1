@@ -31,6 +31,7 @@ if __name__ == "__main__":
     with open("tfidf"+lang+".pkl", "wb") as f:
         pickle.dump(tfidf, f)
 
+    print("Tf-Idf model created for "+args.language)
     #Create Index 
     index = autofaiss.build_index(tfidf_matrix, save_on_disk=True, index_path="index"+args.language+".faiss", max_index_memory_usage="2GB",metric_type=faiss.METRIC_INNER_PRODUCT)
 
