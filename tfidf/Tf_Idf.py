@@ -61,7 +61,7 @@ class Tf_Idf_Vectorizer:
                     idx = self.vocab[word]
                     tf[i, idx] += 1
 
-        tf = tf / torch.norm(tf, dim=1)[:, None]
+        tf = tf 
         # Compute the TF-IDF matrix
         tf_sparse = csr_matrix(tf)  
         idf_sparse = csr_matrix(self.idf)
