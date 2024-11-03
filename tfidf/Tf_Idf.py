@@ -1,8 +1,10 @@
 import torch
 from tqdm import tqdm
 from scipy.sparse import csr_matrix
+from scipy.sparse import save_npz, load_npz
 from scipy.sparse.linalg import norm
 from tqdm import tqdm
+import pickle
 
 
 
@@ -83,7 +85,7 @@ class Tf_Idf_Vectorizer:
             batch =torch.tensor(batch.toarray(), device=self.device)
             sims = torch.mm(batch, tf_q.T)/(torch.norm(batch, dim=1)[:, None] * torch.norm(tf_q))
 
-            top_k_index = i+ sims.argsort(axis=0)[-k:][::-1]
+            top_k_index = i+ sims.argsort(axis=0)[-k:]
             top_k_sims.update({idx: sims[idx] for idx in top_k_index})
         
 
