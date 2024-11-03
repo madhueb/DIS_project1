@@ -1,7 +1,7 @@
 import torch
 
 class Tf_Idf_Vectorizer:
-    def __init__(self,min_df =1, max_df =1.0, device='cuda'):
+    def __init__(self,min_df =1, max_df =1.0, device='cuda' if torch.cuda.is_available() else 'cpu'):
         self.idf = None
         self.vocab = None
         self.device = device
@@ -27,7 +27,7 @@ class Tf_Idf_Vectorizer:
                     df[idx] += 1
 
         # Filter the vocabulary based on max_df and min_df
-        filtered_vocab = { word: idx for word, idx in self.vocab.items() if (df[idx] >= self.min_df and df[idx] <= self.max_df * num_docs)}
+        filtered_vocab = {word: idx for word, idx in self.vocab.items() if (df[idx] >= self.min_df and df[idx] <= self.max_df * num_docs)}
 
         self.vocab = {word: idx for idx, word in enumerate(filtered_vocab)}
 
