@@ -14,6 +14,7 @@ import json
 import argparse
 from pathlib import Path
 from sklearn.metrics.pairwise import cosine_similarity
+from Tf_Idf import Tf_Idf_Vectorizer
 
 
 
@@ -73,6 +74,11 @@ lang = "fr"
 with open("tfidf"+lang+".pkl", "rb") as f:
     tfidf = pickle.load(f)
 
+with open("tfidf_matrix"+lang+".pkl", "rb") as f:
+    tfidf_matrix = pickle.load(f)
+
+t = Tf_Idf_Vectorizer()
+
 def retrieve_top_k (query,k=10):
     lang = query["lang"]
     pos_doc = query["positive_docs"]
@@ -83,11 +89,11 @@ def retrieve_top_k (query,k=10):
     
     #transform query
     query = tfidf.transform([query])
-    tfidf_matrix = tfidf.tfidf_matrix
+    #tfidf_matrix = tfidf.tfidf_matrix
 
     #Compute cosine similarity by batches :
 
-    top_k_index = tfidf.batch(tfidf_matrix, query, 1000, 10)
+    top_k_index = t.batch(tfidf_matrix, query, 1000, 10)
 
     doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
     pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
