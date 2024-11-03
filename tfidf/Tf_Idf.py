@@ -2,6 +2,7 @@ import torch
 from tqdm import tqdm
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import norm
+import tqdm
 
 
 
@@ -74,7 +75,7 @@ class Tf_Idf_Vectorizer:
         top_k_sims = {}
         num_docs = tfidf.shape[0]
         tf_q = torch.tensor(tf_q.toarray(), device=self.device)
-        for i in range(0, num_docs, batch_size):
+        for i in tqdm(range(0, num_docs, batch_size)):
             batch = tfidf[i:i + batch_size]
             #Compute cosine similarity between the query and the batch
             batch =torch.tensor(batch.toarray(), device=self.device)

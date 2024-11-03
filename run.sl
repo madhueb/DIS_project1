@@ -50,4 +50,4 @@ conda activate DIS_project1
 
 
 
-python3 tfidf/indexing.py -dir /nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/data -lang "en"
+python3 tfidf/inferrence.py -dir /nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/data 

@@ -11,6 +11,8 @@ from camel_tools.tokenizers.word import simple_word_tokenize
 from camel_tools.disambig.mle import MLEDisambiguator
 import nltk
 import json
+import argparse
+from pathlib import Path
 
 with open("./Data/corpus.json/corpus.json", "r") as f:
     documents = json.load(f)
@@ -89,6 +91,12 @@ def retrieve_top_k (query,k=10):
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-dir", "--token_dir", type=Path, default = "./data")
+    parser.add_argument("-lang", "--language", type=str, required=True, choices=['ar','de','en','es','fr','it','ko'])
+    args = parser.parse_args()
     
     # #Load query :
     # queries = pd.read_csv("data/test.csv")
@@ -96,7 +104,7 @@ if __name__ == "__main__":
     # submission = queries[["id","doc_ids"]]
     # pd.to_csv("submission.csv",index=False)
 
-    queries = pd.read_csv("data/dev.csv")
+    queries = pd.read_csv(args.token_dir+"/dev.csv")
     queries ["doc_ids"] = queries.apply(retrieve_top_k)
     for i, row in queries.iterrows():
         if row["positive_docs"] in row["doc_ids"]:
