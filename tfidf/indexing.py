@@ -1,4 +1,5 @@
 from Tf_Idf import Tf_Idf_Vectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import pickle 
 import autofaiss
@@ -21,12 +22,16 @@ if __name__ == "__main__":
     with open(f'{args.token_dir}/tokens_{args.language}.pkl', "rb") as f:
         docs = pickle.load(f)
 
-    tfidf = Tf_Idf_Vectorizer(max_df = 0.1, min_df = 0.01)
-    tfidf.fit_transform(docs)
+    tfidf = TfidfVectorizer(max_df = 0.1)
+    tfidf_matrix = tfidf.fit_transform(docs)
+    #tfidf = Tf_Idf_Vectorizer(max_df = 0.1, min_df = 0.01)
 
     #save tfidf model
     with open("tfidf"+args.language+".pkl", "wb") as f:
         pickle.dump(tfidf, f)
+    with open("tfidf_matrix"+args.language+".pkl", "wb") as f:
+        pickle.dump(tfidf_matrix, f)
+
 
     print("Tf-Idf model created for "+args.language)
     # #Create Index 
