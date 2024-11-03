@@ -29,8 +29,8 @@ class Tf_Idf_Vectorizer:
         # Compute document frequency (DF) for each word in the vocabulary :
         df = torch.zeros(vocab_size, device=self.device)
         for i, doc in tqdm(enumerate(documents)):
-            # for word in doc.split():
-            for word in doc:
+            unique_words = set(doc)
+            for word in unique_words:
                 if word in self.vocab:
                     idx = self.vocab[word]
                     df[idx] += 1

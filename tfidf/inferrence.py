@@ -74,10 +74,7 @@ lang = "fr"
 with open("tfidf"+lang+".pkl", "rb") as f:
     tfidf = pickle.load(f)
 
-with open("tfidf_matrix"+lang+".pkl", "rb") as f:
-    tfidf_matrix = pickle.load(f)
 
-t = Tf_Idf_Vectorizer()
 
 def retrieve_top_k (query,k=10):
     lang = query["lang"]
@@ -93,15 +90,15 @@ def retrieve_top_k (query,k=10):
 
     #Compute cosine similarity by batches :
 
-    top_k_index = t.batch(tfidf_matrix, query, 1000, 10)
+    top_k_index = tfidf.batch(tfidf.tfidf_matrix, query, 1000, 10)
 
     doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
     pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
     print(pos_doc_index)
 
-    print("similarity with positive doc : ", cosine_similarity(query, tfidf_matrix[pos_doc_index]))
+    print("similarity with positive doc : ", cosine_similarity(query, tfidf.tfidf_matrix[pos_doc_index]))
     for i in top_k_index:  
-        print("similarity with retrieved doc ", doc_ids[i], " : ", cosine_similarity(query, tfidf_matrix[i]))
+        print("similarity with retrieved doc ", doc_ids[i], " : ", cosine_similarity(query, tfidf.tfidf_matrix[i]))
     return doc_ids[top_k_index]
 
 

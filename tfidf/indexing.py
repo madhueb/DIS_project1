@@ -24,15 +24,13 @@ if __name__ == "__main__":
 
     docs = [" ".join(doc) for doc in docs]
 
-    tfidf = TfidfVectorizer(analyzer='word',max_df = 0.1)
-    tfidf_matrix = tfidf.fit_transform(docs)
-    #tfidf = Tf_Idf_Vectorizer(max_df = 0.1, min_df = 0.01)
+    
+    tfidf = Tf_Idf_Vectorizer(max_df = 0.1, min_df = 0.01)
+    tfidf.fit_transform(docs)
 
     #save tfidf model
     with open("tfidf"+args.language+".pkl", "wb") as f:
         pickle.dump(tfidf, f)
-    with open("tfidf_matrix"+args.language+".pkl", "wb") as f:
-        pickle.dump(tfidf_matrix, f)
 
 
     print("Tf-Idf model created for "+args.language)
