@@ -3,23 +3,14 @@ import numpy as np
 import pickle 
 import autofaiss
 import faiss
-import argparse
 
 
 if __name__ == "__main__":
-    #arguments 
-
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("-dir", "--token_dir", type = str, default = "./data/")
-    args = parser.parse_args()
-
-
     languages = ['ar','de','en','es','fr','it','ko']
 
     for lang in languages:
         #Load documents tokenization  : 
-        with open(args.token_dir+"/tokens_"+lang+".pkl", "rb") as f:
+        with open("./data/tokens_"+lang+".pkl", "rb") as f:
             docs = pickle.load(f)
 
         tfidf = Tf_Idf_Vectorizer(max_df = 0.1, min_df = 0.01)
