@@ -53,6 +53,7 @@ class Tf_Idf_Vectorizer:
                     idx = self.vocab[word]
                     tf[i, idx] += 1
 
+        print("tf shape",tf.size(), "idf shape", self.idf.size())
         # Compute the TF-IDF matrix
         tf_idf = tf * self.idf
         return tf_idf
