@@ -13,7 +13,8 @@ from multiprocessing import Pool
 import string
 from camel_tools.utils.dediac import dediac_ar
 from camel_tools.tokenizers.word import simple_word_tokenize
-from camel_tools.lemmatizer import Lemmatizer
+
+from camel_tools.disambig.mle import MLEDisambiguator
 
 from nltk.corpus import stopwords
 import nltk
@@ -26,9 +27,14 @@ LANGS = ["ar"]
 class BaseTokenizer:
 
     def __init__(self):
+        punctuations = '''`÷×؛<>_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
+        self.translator = str.maketrans('', '', punctuations)
+        self.mle = MLEDisambiguator.pretrained()
+
         nltk.download('stopwords')
-        self.stop_words = set(stopwords.words('arabic'))
-        self.lemmatizer = Lemmatizer()
+        # self.stop_words = set(stopwords.words('arabic'))
+        with open('./ar_stopwords.txt', 'r') as file:
+            self.stop_words = file.read().split('\n') + list(nltk.corpus.stopwords.words("arabic"))
 
 
     def preprocess_text(self, text: str) -> List[str]:
@@ -38,21 +44,25 @@ class BaseTokenizer:
         # Step 2: Remove long sequences of non-alphanumeric characters (e.g., encoded data or code)
         text = re.sub(r"[^\w\s]{4,}", " ", text)  # Removes any sequence of 4 or more non-alphanumeric characters
 
-        # Step 3: Remove excessive whitespace
+        # Step 3: Remove punctuation
+        text = text.translate(self.translator)
+
+        # Step 4: Remove excessive whitespace
         text = re.sub(r"\s+", " ", text.replace("\n", " ")).strip().lower()
 
-        # Step 4: Remove diacritics
+        # Step 5: Remove diacritics
         text = dediac_ar(text)
 
-        # Step 5: Tokenize text
+        # Step 6: Tokenize text
         tokens = simple_word_tokenize(text)
 
-        # Step 6: Lemmatize each token and remove stopwords
-        processed_tokens = [
-            self.lemmatizer.lemmatize(token)[0] for token in tokens if token not in self.stop_words
-        ]
-        return processed_tokens
+        # Step 7: Lemmatize each token and remove stopwords
 
+        disambig = self.mle.disambiguate(tokens)
+
+        lemmas = [d.analyses[0].analysis['lex'] for d in disambig if d.analyses[0].analysis['lex'] not in self.stop_words]
+
+        return lemmas
 
     def tokenize_batch(
             self, texts: List[str], cores: int = 10
