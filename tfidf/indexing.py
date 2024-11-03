@@ -28,7 +28,7 @@ if __name__ == "__main__":
     tfidf_matrix = tfidf_matrix/np.linalg.norm(tfidf_matrix,axis=1)[:,None]
         
     #save tfidf model
-    with open("tfidf"+lang+".pkl", "wb") as f:
+    with open("tfidf"+args.lang+".pkl", "wb") as f:
         pickle.dump(tfidf, f)
 
     print("Tf-Idf model created for "+args.language)
