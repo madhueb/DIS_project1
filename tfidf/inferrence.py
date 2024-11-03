@@ -75,6 +75,8 @@ with open("tfidf"+lang+".pkl", "rb") as f:
 
 def retrieve_top_k (query,k=10):
     lang = query["lang"]
+    pos_doc = query["positive_docs"]
+
     query = preprocess_query(query)
     #load tfidf model
 
@@ -88,7 +90,6 @@ def retrieve_top_k (query,k=10):
     top_k_index = tfidf.batch(tfidf_matrix, query, 1000, 10)
 
     doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
-    pos_doc = query["positive_docs"]
     pos_doc_index = doc_ids.index(pos_doc)
 
     print("similarity with positive doc : ", cosine_similarity(query, tfidf_matrix[pos_doc_index]))
