@@ -1,4 +1,6 @@
 import torch
+from tqdm import tqdm
+
 
 class Tf_Idf_Vectorizer:
     def __init__(self,min_df =1, max_df =1.0, device='cuda' if torch.cuda.is_available() else 'cpu'):
@@ -19,7 +21,7 @@ class Tf_Idf_Vectorizer:
 
         # Compute document frequency (DF) for each word in the vocabulary :
         df = torch.zeros(vocab_size, device=self.device)
-        for i, doc in enumerate(documents):
+        for i, doc in tqdm(enumerate(documents)):
             # for word in doc.split():
             for word in doc:
                 if word in self.vocab:
@@ -27,9 +29,9 @@ class Tf_Idf_Vectorizer:
                     df[idx] += 1
 
         # Filter the vocabulary based on max_df and min_df
-        filtered_vocab = {word: idx for word, idx in self.vocab.items() if (df[idx] >= self.min_df and df[idx] <= self.max_df * num_docs)}
+        filtered_vocab = {word: idx for word, idx in tqdm(self.vocab.items()) if (df[idx] >= self.min_df and df[idx] <= self.max_df * num_docs)}
 
-        self.vocab = {word: idx for idx, word in enumerate(filtered_vocab)}
+        self.vocab = {word: idx for idx, word in tqdm(enumerate(filtered_vocab))}
 
         df = df[list(filtered_vocab.values())]
 
@@ -44,7 +46,7 @@ class Tf_Idf_Vectorizer:
         tf = torch.zeros((num_docs, vocab_size), device=self.device)
 
         # Compute term frequency (TF) for each document
-        for i, doc in enumerate(documents):
+        for i, doc in tqdm(enumerate(documents)):
             # for word in doc.split():
             for word in doc:
                 if word in self.vocab:
