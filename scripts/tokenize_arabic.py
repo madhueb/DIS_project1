@@ -33,7 +33,7 @@ class BaseTokenizer:
 
         nltk.download('stopwords')
         # self.stop_words = set(stopwords.words('arabic'))
-        with open('./ar_stopwords.txt', 'r') as file:
+        with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
             self.stop_words = file.read().split('\n') + list(nltk.corpus.stopwords.words("arabic"))
 
 
@@ -44,14 +44,8 @@ class BaseTokenizer:
         # Step 2: Remove long sequences of non-alphanumeric characters (e.g., encoded data or code)
         text = re.sub(r"[^\w\s]{4,}", " ", text)  # Removes any sequence of 4 or more non-alphanumeric characters
 
-        # Step 3: Remove punctuation
-        text = text.translate(self.translator)
-
-        # Step 4: Remove excessive whitespace
+        # Step 3: Remove excessive whitespace
         text = re.sub(r"\s+", " ", text.replace("\n", " ")).strip().lower()
-
-        # Step 5: Remove diacritics
-        text = dediac_ar(text)
 
         # Step 6: Tokenize text
         tokens = simple_word_tokenize(text)
@@ -60,7 +54,8 @@ class BaseTokenizer:
 
         disambig = self.mle.disambiguate(tokens)
 
-        lemmas = [d.analyses[0].analysis['lex'] for d in disambig if d.analyses[0].analysis['lex'] not in self.stop_words]
+        lemmas = [dediac_ar(d.analyses[0].analysis['lex']).translate(self.translator) for d in disambig]
+        lemmas = [lemma for lemma in lemmas if lemma not in self.stop_words]
 
         return lemmas
 
