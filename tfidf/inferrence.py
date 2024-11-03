@@ -94,7 +94,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-dir", "--token_dir", type=Path, default = "./data")
-    parser.add_argument("-lang", "--language", type=str, required=True, choices=['ar','de','en','es','fr','it','ko'])
     args = parser.parse_args()
     
     # #Load query :
