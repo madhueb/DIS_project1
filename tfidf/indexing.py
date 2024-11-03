@@ -22,8 +22,7 @@ if __name__ == "__main__":
         docs = pickle.load(f)
 
     tfidf = Tf_Idf_Vectorizer(max_df = 0.1, min_df = 0.01)
-    tfidf.fit(docs)
-    tfidf_matrix = tfidf.transform(docs)
+    tfidf.fit_transform(docs)
 
     #save tfidf model
     with open("tfidf"+args.language+".pkl", "wb") as f:

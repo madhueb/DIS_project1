@@ -13,6 +13,7 @@ class Tf_Idf_Vectorizer:
         self.device = device
         self.min_df = min_df
         self.max_df = max_df
+        self.tfidf_matrix = None
 
     def fit(self, documents):
         # Construct the vocabulary
@@ -66,7 +67,8 @@ class Tf_Idf_Vectorizer:
 
     def fit_transform(self, documents):
         self.fit(documents)
-        return self.transform(documents)
+        self.tfidf_matrix = self.transform(documents)
+
     
 
     @torch.no_grad()
