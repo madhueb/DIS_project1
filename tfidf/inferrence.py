@@ -84,7 +84,7 @@ def retrieve_top_k (query,k=10):
 
     top_k_index = tfidf.batch(tfidf_matrix, query, 1000, 10)
 
-    doc_ids = [doc["docid"] for doc in documents if doc["lang"] == lang]  
+    doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
 
     return doc_ids[top_k_index]
 
