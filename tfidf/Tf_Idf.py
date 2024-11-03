@@ -43,7 +43,7 @@ class Tf_Idf_Vectorizer:
         # df = df[list(filtered_vocab.values())]
 
         # Compute IDF 
-        self.idf = torch.log((num_docs ) / df)
+        self.idf = torch.log((num_docs +1 ) / df +1)+1
         return self
     
 
