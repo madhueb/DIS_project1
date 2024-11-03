@@ -22,8 +22,6 @@ if __name__ == "__main__":
     with open(f'{args.token_dir}/tokens_{args.language}.pkl', "rb") as f:
         docs = pickle.load(f)
 
-    docs = [" ".join(doc) for doc in docs]
-
     
     tfidf = Tf_Idf_Vectorizer(max_df = 0.1, min_df = 0.01)
     tfidf.fit_transform(docs)
