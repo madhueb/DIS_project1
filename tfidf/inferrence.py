@@ -105,7 +105,7 @@ if __name__ == "__main__":
     with open(args.token_dir+"/corpus.json/corpus.json", "r") as f:
         documents = json.load(f)
 
-    queries = pd.read_csv(args.token_dir+"/dev.csv")
+    queries = pd.read_csv(f'{args.token_dir}/dev.csv')
     queries ["doc_ids"] = queries.apply(retrieve_top_k)
     for i, row in queries.iterrows():
         if row["positive_docs"] in row["doc_ids"]:
