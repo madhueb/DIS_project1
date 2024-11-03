@@ -106,6 +106,7 @@ if __name__ == "__main__":
         documents = json.load(f)
 
     queries = pd.read_csv(f'{args.token_dir}/dev.csv')
+    queries = queries[queries["lang"]=="fr"]
     queries ["doc_ids"] = queries.apply(retrieve_top_k)
     for i, row in queries.iterrows():
         if row["positive_docs"] in row["doc_ids"]:
