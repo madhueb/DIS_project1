@@ -27,10 +27,9 @@ LANGS = ["ar"]
 class BaseTokenizer:
 
     def __init__(self):
-        punctuations = '''`÷×؛<>_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
+        punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
         self.translator = str.maketrans('', '', punctuations)
         self.mle = MLEDisambiguator.pretrained()
-
         nltk.download('stopwords')
         # self.stop_words = set(stopwords.words('arabic'))
         with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
