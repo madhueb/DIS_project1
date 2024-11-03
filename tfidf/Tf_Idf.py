@@ -36,14 +36,14 @@ class Tf_Idf_Vectorizer:
                     df[idx] += 1
 
         # Filter the vocabulary based on max_df and min_df
-        filtered_vocab = {word: idx for word, idx in tqdm(self.vocab.items()) if (df[idx] >= self.min_df and df[idx] <= self.max_df * num_docs)}
+        # filtered_vocab = {word: idx for word, idx in tqdm(self.vocab.items()) if (df[idx] >= self.min_df and df[idx] <= self.max_df * num_docs)}
 
-        self.vocab = {word: idx for idx, word in tqdm(enumerate(filtered_vocab))}
+        # self.vocab = {word: idx for idx, word in tqdm(enumerate(filtered_vocab))}
 
-        df = df[list(filtered_vocab.values())]
+        # df = df[list(filtered_vocab.values())]
 
         # Compute IDF 
-        self.idf = torch.log((num_docs + 1) / (df + 1)) + 1
+        self.idf = torch.log((num_docs ) / df)
         return self
     
 
