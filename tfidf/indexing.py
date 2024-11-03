@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
    
     #Load documents tokenization  : 
-    with open(args.token_dir+"/tokens_"+args.language+".pkl", "rb") as f:
+    with open(f'{args.token_dir}/tokens_{args.language}.pkl', "rb") as f:
         docs = pickle.load(f)
 
     tfidf = Tf_Idf_Vectorizer(max_df = 0.1, min_df = 0.01)
