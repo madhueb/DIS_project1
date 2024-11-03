@@ -87,6 +87,7 @@ class Tf_Idf_Vectorizer:
             batch = tfidf[i:i + batch_size]
             #Compute cosine similarity between the query and the batch
             batch =torch.tensor(batch.toarray(), device=self.device)
+            print(batch.size(), tf_q.size())
             sims = batch * tf_q / (torch.norm(batch, dim=1).unsqueeze(1) * tf_q_norm)
             # sims = torch.nn.functional.cosine_similarity(batch, tf_q.unsqueeze(0), dim=1)
 
