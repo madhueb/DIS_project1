@@ -86,7 +86,7 @@ class Tf_Idf_Vectorizer:
             sims = torch.mm(batch, tf_q.T)/(torch.norm(batch, dim=1)[:, None] * torch.norm(tf_q))
 
             top_k_index = i+ sims.argsort(axis=0)[-k:]
-            top_k_sims.update({idx: sims[idx] for idx in top_k_index})
+            top_k_sims.update({idx: sims[idx-i] for idx in top_k_index})
         
 
         return top_k_sims.argsort(axis=0)[-k:][::-1]
