@@ -69,7 +69,8 @@ def preprocess_query(query):
         return tokens
     
 
-LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
+# LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
+LANGS = ["fr", "de", "it", "es", "ar", "ko"]
 tfidfs = {}
 for lang in LANGS:
     with open(f"tfidf_{lang}.pkl", "rb") as f:
@@ -127,10 +128,10 @@ if __name__ == "__main__":
     # with open(f'{args.token_dir}/corpus.json/corpus.json', "r") as f:
     #     documents = json.load(f)
 
-    queries = pd.read_csv(f'{args.token_dir}/dev.csv')
+    queries = pd.read_csv(f'{args.token_dir}/train.csv')
     # queries = queries[queries["lang"]=="fr"][:2]
+    queries = queries[queries["lang"] in LANGS]
     queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
-    print(queries)
     lang_accuracy = {lang: 0 for lang in LANGS}
     for i, row in queries.iterrows():
         # if row["positive_docs"] in row["doc_ids"]:
@@ -140,4 +141,5 @@ if __name__ == "__main__":
         lang = row["lang"]
         if row["positive_docs"] in row["doc_ids"]:
             lang_accuracy[lang] += 1
-
+    lang_accuracy = {lang: acc / len(queries[queries["lang"] == lang]) for lang, acc in lang_accuracy.items()}
+    print(lang_accuracy)
