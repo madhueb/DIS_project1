@@ -74,6 +74,7 @@ tfidfs = {}
 for lang in LANGS:
     with open(f"tfidf_{lang}.pkl", "rb") as f:
         tfidfs[lang] = pickle.load(f)
+        print(f"device for {lang} : {tfidfs[lang].device}")
 
 # load doc ids dict with json
 with open("/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/data/ids_dict.json", "r") as f:

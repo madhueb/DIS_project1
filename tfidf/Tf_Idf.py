@@ -94,5 +94,5 @@ class Tf_Idf_Vectorizer:
             # top_k_sims.update({idx: sims[idx-i] for idx in top_k_index})
             top_k_sims.extend([(i + idx, sims[idx].item()) for idx in top_k_index])
         
-        top_k = list(dict(sorted(top_k_sims.items(), key=lambda x: x[1], reverse=True)).keys())
+        top_k = [idx for idx, _ in sorted(top_k_sims, key=lambda x: x[1], reverse=True)][:k]
         return top_k
