@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # submission = queries[["id","doc_ids"]]
     # pd.to_csv("submission.csv",index=False)
 
-    with open(args.token_dir+"/corpus.json/corpus.json", "r") as f:
+    with open(f'{args.token_dir}/corpus.json/corpus.json', "r") as f:
         documents = json.load(f)
 
     queries = pd.read_csv(f'{args.token_dir}/dev.csv')
