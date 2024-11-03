@@ -91,6 +91,7 @@ def retrieve_top_k (query,k=10):
 
     doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
     pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
+    print(pos_doc_index)
 
     print("similarity with positive doc : ", cosine_similarity(query, tfidf_matrix[pos_doc_index]))
     for i in top_k_index:  
