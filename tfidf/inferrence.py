@@ -70,7 +70,7 @@ def preprocess_query(query):
     
 
 def retrieve_top_k (query,k=10):
-    
+    print(query)
     lang = query["lang"]
     query = preprocess_query(query)
     #load tfidf model
