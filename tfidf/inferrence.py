@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
     queries = pd.read_csv(f'{args.token_dir}/train.csv')
     # queries = queries[queries["lang"]=="fr"][:2]
-    queries = queries[queries["lang"] in LANGS]
+    queries = queries[queries["lang"].isin(LANGS)]
     queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
     lang_accuracy = {lang: 0 for lang in LANGS}
     for i, row in queries.iterrows():
