@@ -15,7 +15,6 @@ import argparse
 from pathlib import Path
 from sklearn.metrics.pairwise import cosine_similarity
 from Tf_Idf import Tf_Idf_Vectorizer
-from scripts.tokenizer_lem import LANGS
 
 punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
 with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
