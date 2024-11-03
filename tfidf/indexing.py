@@ -26,7 +26,7 @@ if __name__ == "__main__":
     tfidf_matrix = tfidf.transform(docs)
 
     #save tfidf model
-    with open("tfidf"+args.lang+".pkl", "wb") as f:
+    with open("tfidf"+args.language+".pkl", "wb") as f:
         pickle.dump(tfidf, f)
 
     print("Tf-Idf model created for "+args.language)
