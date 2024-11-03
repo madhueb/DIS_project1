@@ -114,7 +114,7 @@ if __name__ == "__main__":
         documents = json.load(f)
 
     queries = pd.read_csv(f'{args.token_dir}/dev.csv')
-    queries = queries[queries["lang"]=="fr"][0]
+    queries = queries[queries["lang"]=="fr"][:2]
     queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
     print(queries)
     for i, row in queries.iterrows():
