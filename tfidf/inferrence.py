@@ -6,6 +6,8 @@ import pandas as pd
 import re
 import spacy
 import string
+
+import torch
 from camel_tools.utils.dediac import dediac_ar
 from camel_tools.tokenizers.word import simple_word_tokenize
 from camel_tools.disambig.mle import MLEDisambiguator
@@ -74,6 +76,7 @@ tfidfs = {}
 for lang in LANGS:
     with open(f"tfidf_{lang}.pkl", "rb") as f:
         tfidfs[lang] = pickle.load(f)
+        tfidfs[lang].device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print(f"device for {lang} : {tfidfs[lang].device}")
 
 # load doc ids dict with json
@@ -109,7 +112,7 @@ def retrieve_top_k (query, batch_size=1000, k=10):
     # for i in top_k_index:
     #     print("similarity with retrieved doc ", doc_ids[i], " : ", cosine_similarity(query, tfidf.tfidf_matrix[i]))
 
-    return ids_dict[lang][top_k_index]
+    return np.array(ids_dict[lang])[top_k_index]
 
 
 if __name__ == "__main__":
