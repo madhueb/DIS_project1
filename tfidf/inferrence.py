@@ -91,7 +91,7 @@ def retrieve_top_k (query,k=10):
 
     #Compute cosine similarity by batches :
 
-    top_k_index = tfidf.batch(tfidf.tfidf_matrix, query, 5000, 10)
+    top_k_index = tfidf.batch(tfidf.tfidf_matrix, query, 1000, 10)
 
     doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
     pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
