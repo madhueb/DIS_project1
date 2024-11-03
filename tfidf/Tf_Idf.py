@@ -48,6 +48,7 @@ class Tf_Idf_Vectorizer:
                     idx = self.vocab[word]
                     tf[i, idx] += 1
 
+        tf = tf / tf.max(dim=1).unsqueeze(1)
         # Compute the TF-IDF matrix
         tf_idf = tf * self.idf
         return tf_idf
