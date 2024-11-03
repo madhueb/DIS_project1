@@ -78,19 +78,15 @@ def retrieve_top_k (query,k=10):
     
     #transform query
     query = tfidf.transform([query])
-    query = query/np.linalg.norm(query.toarray())
-    
-    #load index
-    index = autofaiss.load_index("index"+lang+".faiss")
-    
-    #search index
-    D, I = index.search(query, k)
-    
-    #Return doc_ids of top k :
+
+    #Compute cosine similarity by batches :
+
+    top_k_index = tfidf.batch(tfidf, query, 1000, 10)
 
     doc_ids = [doc["doc_ids"] for doc in documents if doc["lang"] == lang]  
 
-    return doc_ids[I[0]]
+    return doc_ids[top_k_index]
+
 
 if __name__ == "__main__":
     

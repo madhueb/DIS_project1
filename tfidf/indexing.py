@@ -24,15 +24,13 @@ if __name__ == "__main__":
     tfidf = Tf_Idf_Vectorizer(max_df = 0.1, min_df = 0.01)
     tfidf.fit(docs)
     tfidf_matrix = tfidf.transform(docs)
-    tfidf_matrix =tfidf_matrix.toarrray()
-    tfidf_matrix = tfidf_matrix/np.linalg.norm(tfidf_matrix,axis=1)[:,None]
-        
+
     #save tfidf model
     with open("tfidf"+args.lang+".pkl", "wb") as f:
         pickle.dump(tfidf, f)
 
     print("Tf-Idf model created for "+args.language)
-    #Create Index 
-    index = autofaiss.build_index(tfidf_matrix, save_on_disk=True, index_path="index"+args.language+".faiss", max_index_memory_usage="2GB",metric_type=faiss.METRIC_INNER_PRODUCT)
+    # #Create Index 
+    # index = autofaiss.build_index(tfidf_matrix, save_on_disk=True, index_path="index"+args.language+".faiss", max_index_memory_usage="2GB",metric_type=faiss.METRIC_INNER_PRODUCT)
 
-    print("Index Created for "+args.language)
+    # print("Index Created for "+args.language)
