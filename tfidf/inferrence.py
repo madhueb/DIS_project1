@@ -13,6 +13,7 @@ import nltk
 import json
 import argparse
 from pathlib import Path
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 
@@ -87,7 +88,12 @@ def retrieve_top_k (query,k=10):
     top_k_index = tfidf.batch(tfidf_matrix, query, 1000, 10)
 
     doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
+    pos_doc = query["positive_docs"]
+    pos_doc_index = doc_ids.index(pos_doc)
 
+    print("similarity with positive doc : ", cosine_similarity(query, tfidf_matrix[pos_doc_index]))
+    for i in top_k_index:  
+        print("similarity with retrieved doc ", doc_ids[i], " : ", cosine_similarity(query, tfidf_matrix[i]))
     return doc_ids[top_k_index]
 
 
@@ -108,7 +114,7 @@ if __name__ == "__main__":
         documents = json.load(f)
 
     queries = pd.read_csv(f'{args.token_dir}/dev.csv')
-    queries = queries[queries["lang"]=="fr"]
+    queries = queries[queries["lang"]=="fr"][0]
     queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
     print(queries)
     for i, row in queries.iterrows():
