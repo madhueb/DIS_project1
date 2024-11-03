@@ -15,16 +15,15 @@ import argparse
 from pathlib import Path
 from sklearn.metrics.pairwise import cosine_similarity
 from Tf_Idf import Tf_Idf_Vectorizer
+from scripts.tokenizer_lem import LANGS
 
-
-
+punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
+with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
+    ar_stop_words = file.read().split('\n') + list(nltk.corpus.stopwords.words("arabic"))
 
 def preprocess_query(query):
     lang = query["lang"]
     if lang == "ar":
-        punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
-        with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
-            stop_words = file.read().split('\n') + list(nltk.corpus.stopwords.words("arabic"))
 
 
         # Step 1: Remove URLs
@@ -49,8 +48,8 @@ def preprocess_query(query):
         disambig = mle.disambiguate(tokens)
 
         lemmas = [dediac_ar(d.analyses[0].analysis['lex']).translate(translator) for d in disambig]
-        lemmas = [lemma for lemma in lemmas if lemma not in stop_words]
-        return " ".join(lemmas)
+        lemmas = [lemma for lemma in lemmas if lemma not in ar_stop_words]
+        return lemmas
 
     else :
         # Step 1: Remove URLs
@@ -70,14 +69,21 @@ def preprocess_query(query):
         return tokens
     
 
-lang = "fr"
-with open("tfidf"+lang+".pkl", "rb") as f:
-    tfidf = pickle.load(f)
+LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
+tfidfs = {}
+for lang in LANGS:
+    with open(f"tfidf_{lang}.pkl", "rb") as f:
+        tfidfs[lang] = pickle.load(f)
+
+# load doc ids dict with json
+with open("../data/ids_dict.json", "r") as f:
+    ids_dict = json.load(f)
 
 
-
-def retrieve_top_k (query,k=10):
+def retrieve_top_k (query, batch_size=1000, k=10):
     lang = query["lang"]
+
+    tfidf = tfidfs[lang]
     pos_doc = query["positive_docs"]
 
     query = preprocess_query(query)
@@ -91,17 +97,18 @@ def retrieve_top_k (query,k=10):
 
     #Compute cosine similarity by batches :
 
-    top_k_index = tfidf.batch(tfidf.tfidf_matrix, query, 1000, 10)
+    top_k_index = tfidf.batch(tfidf.tfidf_matrix, query, batch_size, k)
 
-    doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang] )
-    pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
-    tfidf_matrix =tfidf.tfidf_matrix
-    print(pos_doc_index)
+    # doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang])
+    # pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
+    # tfidf_matrix = tfidf.tfidf_matrix
+    # print(pos_doc_index)
+    #
+    # print("similarity with positive doc : ", cosine_similarity(query, tfidf_matrix[pos_doc_index]))
+    # for i in top_k_index:
+    #     print("similarity with retrieved doc ", doc_ids[i], " : ", cosine_similarity(query, tfidf.tfidf_matrix[i]))
 
-    print("similarity with positive doc : ", cosine_similarity(query, tfidf_matrix[pos_doc_index]))
-    for i in top_k_index:  
-        print("similarity with retrieved doc ", doc_ids[i], " : ", cosine_similarity(query, tfidf.tfidf_matrix[i]))
-    return doc_ids[top_k_index]
+    return ids_dict[lang][top_k_index]
 
 
 if __name__ == "__main__":
@@ -117,16 +124,20 @@ if __name__ == "__main__":
     # submission = queries[["id","doc_ids"]]
     # pd.to_csv("submission.csv",index=False)
 
-    with open(f'{args.token_dir}/corpus.json/corpus.json', "r") as f:
-        documents = json.load(f)
+    # with open(f'{args.token_dir}/corpus.json/corpus.json', "r") as f:
+    #     documents = json.load(f)
 
     queries = pd.read_csv(f'{args.token_dir}/dev.csv')
-    queries = queries[queries["lang"]=="fr"][:2]
+    # queries = queries[queries["lang"]=="fr"][:2]
     queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
     print(queries)
+    lang_accuracy = {lang: 0 for lang in LANGS}
     for i, row in queries.iterrows():
+        # if row["positive_docs"] in row["doc_ids"]:
+        #     print("Document found in top 10")
+        # else:
+        #     print("Document not found in top 10")
+        lang = row["lang"]
         if row["positive_docs"] in row["doc_ids"]:
-            print("Document found in top 10")
-        else:
-            print("Document not found in top 10")
+            lang_accuracy[lang] += 1
 

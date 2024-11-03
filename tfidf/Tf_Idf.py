@@ -4,6 +4,7 @@ from scipy.sparse import csr_matrix
 from scipy.sparse import save_npz, load_npz
 from scipy.sparse.linalg import norm
 from tqdm import tqdm
+from sklearn.preprocessing import normalize
 import pickle
 import numpy as np
 
@@ -18,6 +19,7 @@ class Tf_Idf_Vectorizer:
         self.max_df = max_df
         self.tfidf_matrix = None
 
+    @torch.no_grad()
     def fit(self, documents):
         # Construct the vocabulary
         # vocab = set(word for doc in documents for word in doc.split())
@@ -47,7 +49,7 @@ class Tf_Idf_Vectorizer:
         self.idf = torch.log((num_docs +1 ) / (df +1))+1
         return self
     
-
+    @torch.no_grad()
     def transform(self, documents):
         num_docs = len(documents)
         vocab_size = len(self.vocab)
@@ -61,34 +63,36 @@ class Tf_Idf_Vectorizer:
                     idx = self.vocab[word]
                     tf[i, idx] += 1
 
-        tf = tf 
         # Compute the TF-IDF matrix
         tf_sparse = csr_matrix(tf)  
         idf_sparse = csr_matrix(self.idf)
         #tf_idf = tf_sparse@idf_sparse
         tf_idf = tf_sparse.multiply(idf_sparse)
+        # normalize the tfidf matrix
+        tf_idf = normalize(tf_idf, norm='l2', axis=1)
         return tf_idf
 
     def fit_transform(self, documents):
         self.fit(documents)
         self.tfidf_matrix = self.transform(documents)
 
-    
-
     @torch.no_grad()
     def batch (self ,tfidf, tf_q, batch_size, k):
         # Compute the cosine similarity between the query and the documents
-        top_k_sims = {}
+        top_k_sims = []
         num_docs = tfidf.shape[0]
         tf_q = torch.tensor(tf_q.toarray(), device=self.device)
+        tf_q_norm = torch.norm(tf_q)
         for i in tqdm(range(0, num_docs, batch_size)):
             batch = tfidf[i:i + batch_size]
             #Compute cosine similarity between the query and the batch
-            batch =torch.tensor(batch.toarray(), device=self.device)
-            sims = torch.mm(batch, tf_q.T)/(torch.norm(batch, dim=1)[:, None] * torch.norm(tf_q))
+            batch = torch.tensor(batch.toarray(), device=self.device)
+            sims = torch.mm(batch, tf_q.T) / tf_q_norm
 
-            top_k_index = i+ sims.argsort(axis=0)[-k:]
-            top_k_sims.update({idx: sims[idx-i] for idx in top_k_index})
+            # top_k_index = i + sims.argsort(axis=0)[-k:]
+            top_k_index = torch.topk(sims.T, k, largest=True).indices.flatten()
+            # top_k_sims.update({idx: sims[idx-i] for idx in top_k_index})
+            top_k_sims.extend([(idx, sims[idx-i].item()) for idx in top_k_index])
         
-        top_k = list(dict(sorted(top_k_sims.items(), key=lambda x: x[1], reverse=True )).keys())
+        top_k = list(dict(sorted(top_k_sims.items(), key=lambda x: x[1], reverse=True)).keys())
         return top_k
