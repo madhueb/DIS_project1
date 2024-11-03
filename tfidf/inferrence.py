@@ -73,6 +73,7 @@ def preprocess_query(query):
 # LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
 LANGS = ["fr", "de", "it", "es", "ar", "ko"]
 tfidfs = {}
+print("cuda available : ", torch.cuda.is_available())
 for lang in LANGS:
     with open(f"tfidf_{lang}.pkl", "rb") as f:
         tfidfs[lang] = pickle.load(f)
