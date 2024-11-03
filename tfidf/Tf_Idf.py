@@ -10,7 +10,8 @@ class Tf_Idf_Vectorizer:
 
     def fit(self, documents):
         # Construct the vocabulary
-        vocab = set(word for doc in documents for word in doc.split())
+        # vocab = set(word for doc in documents for word in doc.split())
+        vocab = set(word for doc in documents for word in doc)
         self.vocab = {word: idx for idx, word in enumerate(vocab)}
         num_docs = len(documents)
         vocab_size = len(self.vocab)
@@ -19,7 +20,8 @@ class Tf_Idf_Vectorizer:
         # Compute document frequency (DF) for each word in the vocabulary :
         df = torch.zeros(vocab_size, device=self.device)
         for i, doc in enumerate(documents):
-            for word in doc.split():
+            # for word in doc.split():
+            for word in doc:
                 if word in self.vocab:
                     idx = self.vocab[word]
                     df[idx] += 1
@@ -43,7 +45,8 @@ class Tf_Idf_Vectorizer:
 
         # Compute term frequency (TF) for each document
         for i, doc in enumerate(documents):
-            for word in doc.split():
+            # for word in doc.split():
+            for word in doc:
                 if word in self.vocab:
                     idx = self.vocab[word]
                     tf[i, idx] += 1
