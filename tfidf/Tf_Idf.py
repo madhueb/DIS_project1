@@ -30,7 +30,7 @@ class Tf_Idf_Vectorizer:
 
 
         # Compute document frequency (DF) for each word in the vocabulary :
-        df = torch.zeros(vocab_size, device=self.device)
+        df = np.zeros(vocab_size)
         for i, doc in tqdm(enumerate(documents)):
             unique_words = set(doc)
             for word in unique_words:
@@ -45,8 +45,10 @@ class Tf_Idf_Vectorizer:
 
         # df = df[list(filtered_vocab.values())]
 
-        # Compute IDF 
-        self.idf = torch.log((num_docs +1 ) / (df +1))+1
+        # Compute IDF
+
+        # self.idf = torch.log((num_docs +1 ) / (df +1))+1
+        self.idf = torch.log(num_docs / df) + 1
         return self
     
     @torch.no_grad()
@@ -78,10 +80,11 @@ class Tf_Idf_Vectorizer:
                     word_count[idx] += 1
 
             # Collect data for the CSR representation
+            max_val = max(word_count.values())
             for idx, count in word_count.items():
                 row_indices.append(i)
                 col_indices.append(idx)
-                data.append(count)
+                data.append(count / max_val)
 
         tf = csr_matrix((data, (row_indices, col_indices)), shape=(num_docs, vocab_size))
         idf_sparse = csr_matrix(self.idf)
