@@ -53,32 +53,59 @@ class Tf_Idf_Vectorizer:
     def transform(self, documents, is_sparse=True):
         num_docs = len(documents)
         vocab_size = len(self.vocab)
-        tf = torch.zeros((num_docs, vocab_size), device=self.device)
+        # tf = torch.zeros((num_docs, vocab_size), device=self.device)
+        #
+        # # Compute term frequency (TF) for each document
+        # for i, doc in tqdm(enumerate(documents)):
+        #     # for word in doc.split():
+        #     for word in doc:
+        #         if word in self.vocab:
+        #             idx = self.vocab[word]
+        #             tf[i, idx] += 1
+
+        data = []
+        row_indices = []
+        col_indices = []
 
         # Compute term frequency (TF) for each document
         for i, doc in tqdm(enumerate(documents)):
-            # for word in doc.split():
+            word_count = {}
             for word in doc:
                 if word in self.vocab:
                     idx = self.vocab[word]
-                    tf[i, idx] += 1
+                    if idx not in word_count:
+                        word_count[idx] = 0
+                    word_count[idx] += 1
 
-        if is_sparse:
-            tf = tf.cpu()
-            # Compute the TF-IDF matrix
-            tf_sparse = csr_matrix(tf)
-            idf_sparse = csr_matrix(self.idf)
-            #tf_idf = tf_sparse@idf_sparse
-            tf_idf = tf_sparse.multiply(idf_sparse)
-            # normalize the tfidf matrix
-            tf_idf = normalize(tf_idf, norm='l2', axis=1)
-            return tf_idf
-        else:
-            # Compute the TF-IDF matrix
-            tf_idf = tf * self.idf
-            # normalize the tfidf matrix
-            tf_idf = tf_idf / torch.norm(tf_idf, dim=1).unsqueeze(1)
-            return tf_idf
+            # Collect data for the CSR representation
+            for idx, count in word_count.items():
+                row_indices.append(i)
+                col_indices.append(idx)
+                data.append(count)
+
+        tf = csr_matrix((data, (row_indices, col_indices)), shape=(num_docs, vocab_size))
+        idf_sparse = csr_matrix(self.idf)
+        tf_idf = tf.multiply(idf_sparse)
+        tf_idf = normalize(tf_idf, norm='l2', axis=1)
+        return tf_idf
+
+
+        # if is_sparse:
+        #     tf = tf.cpu()
+        #     # Compute the TF-IDF matrix
+        #     tf_sparse = csr_matrix(tf)
+        #     idf_sparse = csr_matrix(self.idf)
+        #     #tf_idf = tf_sparse@idf_sparse
+        #     tf_idf = tf_sparse.multiply(idf_sparse)
+        #     # normalize the tfidf matrix
+        #     tf_idf = normalize(tf_idf, norm='l2', axis=1)
+        #     return tf_idf
+        # else:
+        #     # Compute the TF-IDF matrix
+        #     tf_idf = tf * self.idf
+        #     # normalize the tfidf matrix
+        #     tf_idf = tf_idf / torch.norm(tf_idf, dim=1).unsqueeze(1)
+        #     return tf_idf
 
     def fit_transform(self, documents):
         self.fit(documents)
