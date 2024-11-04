@@ -7,9 +7,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from lib.utils import get_tokens
-from lib.bm25_inf import LANGS, ids_dict, bm25s
-from tfidf.inferrence import tfidfs, retrieve_top_k
+from utils import get_tokens
+from bm25_inf import LANGS, ids_dict, bm25s
+from tfidf.inferrence import retrieve_top_k
 
 
 if __name__ == "__main__":
