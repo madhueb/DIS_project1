@@ -157,6 +157,7 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
     # for i in top_k_index:
     #     print("similarity with retrieved doc ", doc_ids[i], " : ", cosine_similarity(query, tfidf.tfidf_matrix[i]))
 
+
     return np.array(ids_dict[lang])[top_k_index]
 
 
@@ -200,9 +201,11 @@ if __name__ == "__main__":
             if row["positive_docs"] in doc_ids[i]:
                 acc += 1
         print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
-        # clear memory
-        torch.cuda.empty_cache()
+        del tfidfs[lang]
+        del nlps[lang]
         gc.collect()
+        # clear memory
+
 
         # queries_lang.to_csv(f"{args.token_dir}/train_{lang}.csv", index=False)
         # print(f"Saved {lang} queries")
