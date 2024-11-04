@@ -192,7 +192,7 @@ if __name__ == "__main__":
     # print(lang_accuracy)
 
     for lang in LANGS:
-        queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]]
+        queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]].reset_index(drop=True)
         doc_ids = retrieve_top_k(queries_lang["query"].tolist(), lang)
         acc = 0
         for i, row in queries_lang.iterrows():
