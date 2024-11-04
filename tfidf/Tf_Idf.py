@@ -80,6 +80,9 @@ class Tf_Idf_Vectorizer:
                     word_count[idx] += 1
 
             # Collect data for the CSR representation
+            if len(word_count) == 0:
+                print(f"Document {i} is empty")
+                continue
             max_val = max(word_count.values())
             for idx, count in word_count.items():
                 row_indices.append(i)
