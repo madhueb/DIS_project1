@@ -12,6 +12,7 @@ import string
 import os
 import spacy.cli
 from tqdm import tqdm
+import pyphen
 
 LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
 
