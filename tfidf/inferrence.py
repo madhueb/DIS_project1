@@ -99,57 +99,57 @@ def preprocess_query(query, lang):
 
 
 
-def retrieve_top_k (queries, lang, batch_size=1000, k=10):
+def retrieve_top_k (tokens, lang, batch_size=1000, k=10):
 
     tfidf = tfidfs[lang]
-    # pos_doc = query["positive_docs"]
-
-    queries = [preprocess_query(query, lang) for query in queries]
-    if lang == "ar":
-        all_tokens = []
-        tokens_len = []
-        for query in queries:
-            tokens = simple_word_tokenize(query)
-            all_tokens.extend(tokens)
-            tokens_len.append(len(tokens))
-
-        mle = MLEDisambiguator.pretrained()
-        disambig = mle.disambiguate(all_tokens)
-
-        tokens = []
-        start = 0
-        cnt = 0
-        tmp = []
-        for d in disambig:
-            token = dediac_ar(d.analyses[0].analysis['lex']).translate(translator)
-            if token not in ar_stop_words:
-                tmp.append(token)
-            cnt += 1
-            if cnt == tokens_len[start]:
-                tokens.append(tmp)
-                tmp = []
-                start += 1
-                cnt = 0
-    else:
-        queries = nlps[lang].pipe(
-            queries, batch_size=32, n_process=4
-        )
-        tokens = [
-            [
-                token.lemma_
-                for token in query
-                if not token.is_stop
-                and not token.is_punct
-                # and self.TOKEN_PATTERN.match(token.text)
-            ]
-            for query in tqdm(queries)
-        ]
-    # tokens = [synonym_expansion_nltk(query) for query in tokens]
+    # # pos_doc = query["positive_docs"]
+    #
+    # queries = [preprocess_query(query, lang) for query in queries]
+    # if lang == "ar":
+    #     all_tokens = []
+    #     tokens_len = []
+    #     for query in queries:
+    #         tokens = simple_word_tokenize(query)
+    #         all_tokens.extend(tokens)
+    #         tokens_len.append(len(tokens))
+    #
+    #     mle = MLEDisambiguator.pretrained()
+    #     disambig = mle.disambiguate(all_tokens)
+    #
+    #     tokens = []
+    #     start = 0
+    #     cnt = 0
+    #     tmp = []
+    #     for d in disambig:
+    #         token = dediac_ar(d.analyses[0].analysis['lex']).translate(translator)
+    #         if token not in ar_stop_words:
+    #             tmp.append(token)
+    #         cnt += 1
+    #         if cnt == tokens_len[start]:
+    #             tokens.append(tmp)
+    #             tmp = []
+    #             start += 1
+    #             cnt = 0
+    # else:
+    #     queries = nlps[lang].pipe(
+    #         queries, batch_size=32, n_process=4
+    #     )
+    #     tokens = [
+    #         [
+    #             token.lemma_
+    #             for token in query
+    #             if not token.is_stop
+    #             and not token.is_punct
+    #             # and self.TOKEN_PATTERN.match(token.text)
+    #         ]
+    #         for query in tqdm(queries)
+    #     ]
+    # # tokens = [synonym_expansion_nltk(query) for query in tokens]
 
     queries = tfidf.transform(tokens, is_query=True)
 
     sims = (tfidf.tfidf_matrix @ queries.transpose()).toarray()
-    top_k_index = np.argsort(sims.T, axis=1)[:, -k:]
+    top_k_index = np.argsort(sims.T, axis=1)[:, ::-1][:, :k]
 
     return np.array(ids_dict[lang])[top_k_index]
 
