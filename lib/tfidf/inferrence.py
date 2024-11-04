@@ -15,7 +15,7 @@ import json
 import argparse
 from pathlib import Path
 import gc
-
+import Tf_Idf
 from tqdm import tqdm
 
 punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
