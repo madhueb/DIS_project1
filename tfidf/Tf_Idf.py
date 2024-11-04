@@ -97,7 +97,7 @@ class Tf_Idf_Vectorizer:
             sims = torch.mm(batch, tf_q.T)
 
             # top_k_index = i + sims.argsort(axis=0)[-k:]
-            top_k_index = torch.topk(sims.T, k, largest=True).indices.flatten()
+            top_k_index = torch.topk(sims.T, k, largest=True).indices.flatten().cpu().numpy()
             # top_k_sims.update({idx: sims[idx-i] for idx in top_k_index})
             top_k_sims.extend([(i + idx, sims[idx].item()) for idx in top_k_index])
         
