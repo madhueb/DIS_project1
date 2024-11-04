@@ -51,7 +51,17 @@ for lang in LANGS:
         nlps[lang] = spacy.load(lang + "_core_news_sm")
 
 
+from nltk.corpus import wordnet
 
+def synonym_expansion_nltk(query):
+    expanded_query = set(query)
+
+    for word in query:
+        for syn in wordnet.synsets(word):
+            for lemma in syn.lemmas():
+                expanded_query.add(lemma.name().replace("_", " ").lower().split())
+
+    return query + [word for word in expanded_query if word not in query]
 
 def preprocess_query(query, lang):
     if lang == "ar":
@@ -131,6 +141,7 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
             ]
             for query in tqdm(queries)
         ]
+    tokens = [synonym_expansion_nltk(query) for query in tokens]
     # queries = [query for query in queries if query["lang"] == lang]
     #load tfidf model
 
