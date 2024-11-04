@@ -232,7 +232,7 @@ if __name__ == "__main__":
         # queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]].reset_index(drop=True)
         queries_lang = queries[queries["lang"] == lang][["query"]].reset_index(drop=True)
         doc_ids = retrieve_top_k(queries_lang["query"].tolist(), lang)
-        queries.loc[queries["lang"] == lang, "docids"] = [list(doc_ids[i]) for i in range(len(doc_ids))]
+        queries.loc[queries["lang"] == lang, "docids"] = [doc_id.tolist() for doc_id in doc_ids]
         # acc = 0
         # for i, row in queries_lang.iterrows():
         #     if row["positive_docs"] in doc_ids[i]:
