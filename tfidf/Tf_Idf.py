@@ -84,12 +84,12 @@ class Tf_Idf_Vectorizer:
             if len(word_count) == 0:
                 print(f"Document {i} is empty")
                 continue
-            max_val = max(word_count.values())
+            # max_val = max(word_count.values())
             for idx, count in word_count.items():
                 row_indices.append(i)
                 col_indices.append(idx)
-                data.append(count / max_val)
-                # data.append(count)
+                # data.append(count / max_val)
+                data.append(count)
 
         tf = csr_matrix((data, (row_indices, col_indices)), shape=(num_docs, vocab_size))
         idf_sparse = csr_matrix(self.idf)
