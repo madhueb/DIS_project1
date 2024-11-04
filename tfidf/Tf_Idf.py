@@ -88,8 +88,8 @@ class Tf_Idf_Vectorizer:
             for idx, count in word_count.items():
                 row_indices.append(i)
                 col_indices.append(idx)
-                # data.append(count / max_val)
-                data.append(count)
+                data.append(count / max_val)
+                # data.append(count)
 
         tf = csr_matrix((data, (row_indices, col_indices)), shape=(num_docs, vocab_size))
         idf_sparse = csr_matrix(self.idf)
