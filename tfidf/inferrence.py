@@ -26,6 +26,7 @@ translator = str.maketrans('', '', punctuations)
 
 LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
 # LANGS = ["fr", "de", "it", "es", "ar", "ko"]
+
 tfidfs = {}
 print("cuda available : ", torch.cuda.is_available())
 for lang in LANGS:
