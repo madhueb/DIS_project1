@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from lib.utils import get_tokens
+from utils import get_tokens
 
 LANGS = ["fr", "en", "de", "it", "es", "ar", "ko"]
 with open("/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/data/ids_dict.json", "r") as f:

@@ -1,7 +1,7 @@
 import argparse
 import pickle
 
-from lib.bm25.bm25 import BM25
+from bm25.bm25 import BM25
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
