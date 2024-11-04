@@ -50,7 +50,7 @@ class Tf_Idf_Vectorizer:
         return self
     
     @torch.no_grad()
-    def transform(self, documents, is_sparse=True):
+    def transform(self, documents, is_query=False):
         num_docs = len(documents)
         vocab_size = len(self.vocab)
         # tf = torch.zeros((num_docs, vocab_size), device=self.device)

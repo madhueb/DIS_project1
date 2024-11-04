@@ -32,7 +32,7 @@ for lang in LANGS:
     with open(f"tfidf_{lang}.pkl", "rb") as f:
         tfidfs[lang] = pickle.load(f)
         tfidfs[lang].device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        tfidfs[lang].idf = tfidfs[lang].idf.to(tfidfs[lang].device)
+        # tfidfs[lang].idf = tfidfs[lang].idf.to(tfidfs[lang].device)
         print(f"device for {lang} : {tfidfs[lang].device}")
 
 # load doc ids dict with json
@@ -134,7 +134,7 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
     #transform query
     # query = tfidf.transform([query])
     # query = tfidf.transform([query], is_sparse=False)
-    queries = tfidf.transform(tokens, is_sparse=False)
+    queries = tfidf.transform(tokens, is_query=True)
 
     # make queries as csr matrix
     q_values = torch.tensor(queries.data, dtype=torch.float32)
@@ -143,6 +143,7 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
 
     # Create a PyTorch sparse_csr_tensor
     queries = torch.sparse_csr_tensor(q_crow_indices, q_col_indices, q_values, size=queries.shape, device=tfidf.device)
+
     #tfidf_matrix = tfidf.tfidf_matrix
 
     #Compute cosine similarity by batches :
