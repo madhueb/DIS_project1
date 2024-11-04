@@ -135,36 +135,39 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
     # query = tfidf.transform([query])
     # query = tfidf.transform([query], is_sparse=False)
     queries = tfidf.transform(tokens, is_query=True)
-    queries = queries.transpose()
 
-    # make queries as csr matrix
-    q_values = torch.tensor(queries.data, dtype=torch.float32)
-    q_crow_indices = torch.tensor(queries.indptr, dtype=torch.int32)
-    q_col_indices = torch.tensor(queries.indices, dtype=torch.int32)
-
-    # Create a PyTorch sparse_csr_tensor
-    queries = torch.sparse_csr_tensor(q_crow_indices, q_col_indices, q_values, size=queries.shape, device=tfidf.device)
-    #tfidf_matrix = tfidf.tfidf_matrix
-
-    #Compute cosine similarity by batches :
-
-    values = torch.tensor(tfidf.tfidf_matrix.data, dtype=torch.float32)
-    crow_indices = torch.tensor(tfidf.tfidf_matrix.indptr, dtype=torch.int32)
-    col_indices = torch.tensor(tfidf.tfidf_matrix.indices, dtype=torch.int32)
-
-    # Create a PyTorch sparse_csr_tensor
-    tfidf.tfidf_matrix = torch.sparse_csr_tensor(crow_indices, col_indices, values, size=tfidf.tfidf_matrix.shape, device=tfidf.device)
-
-    top_k_index = tfidf.batch(queries, batch_size, k)
-
-    # doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang])
-    # pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
-    # tfidf_matrix = tfidf.tfidf_matrix
-    # print(pos_doc_index)
+    sims = tfidf @ queries.transpose()
+    top_k_index = np.argsort(sims.transpose(), axis=1)[-k:]
+    # # make queries as csr matrix
+    # queries = queries.transpose()
     #
-    # print("similarity with positive doc : ", cosine_similarity(query, tfidf_matrix[pos_doc_index]))
-    # for i in top_k_index:
-    #     print("similarity with retrieved doc ", doc_ids[i], " : ", cosine_similarity(query, tfidf.tfidf_matrix[i]))
+    # q_values = torch.tensor(queries.data, dtype=torch.float32)
+    # q_crow_indices = torch.tensor(queries.indptr, dtype=torch.int32)
+    # q_col_indices = torch.tensor(queries.indices, dtype=torch.int32)
+    #
+    # # Create a PyTorch sparse_csr_tensor
+    # queries = torch.sparse_csr_tensor(q_crow_indices, q_col_indices, q_values, size=queries.shape, device=tfidf.device)
+    # #tfidf_matrix = tfidf.tfidf_matrix
+    #
+    # #Compute cosine similarity by batches :
+    #
+    # values = torch.tensor(tfidf.tfidf_matrix.data, dtype=torch.float32)
+    # crow_indices = torch.tensor(tfidf.tfidf_matrix.indptr, dtype=torch.int32)
+    # col_indices = torch.tensor(tfidf.tfidf_matrix.indices, dtype=torch.int32)
+    #
+    # # Create a PyTorch sparse_csr_tensor
+    # tfidf.tfidf_matrix = torch.sparse_csr_tensor(crow_indices, col_indices, values, size=tfidf.tfidf_matrix.shape, device=tfidf.device)
+    #
+    # top_k_index = tfidf.batch(queries, batch_size, k)
+    #
+    # # doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang])
+    # # pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
+    # # tfidf_matrix = tfidf.tfidf_matrix
+    # # print(pos_doc_index)
+    # #
+    # # print("similarity with positive doc : ", cosine_similarity(query, tfidf_matrix[pos_doc_index]))
+    # # for i in top_k_index:
+    # #     print("similarity with retrieved doc ", doc_ids[i], " : ", cosine_similarity(query, tfidf.tfidf_matrix[i]))
 
 
     return np.array(ids_dict[lang])[top_k_index]
