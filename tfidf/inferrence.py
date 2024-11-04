@@ -24,8 +24,8 @@ with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_sto
 
 translator = str.maketrans('', '', punctuations)
 
-# LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
-LANGS = ["fr", "de", "it", "es", "ar", "ko"]
+LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
+# LANGS = ["fr", "de", "it", "es", "ar", "ko"]
 tfidfs = {}
 print("cuda available : ", torch.cuda.is_available())
 for lang in LANGS:
@@ -214,8 +214,6 @@ if __name__ == "__main__":
             if row["positive_docs"] in doc_ids[i]:
                 acc += 1
         print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
-        del tfidfs[lang]
-        del nlps[lang]
         gc.collect()
         # clear memory
 
