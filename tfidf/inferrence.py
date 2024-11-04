@@ -60,7 +60,8 @@ def synonym_expansion_nltk(query):
     for word in query:
         for syn in wordnet.synsets(word):
             for lemma in syn.lemmas():
-                expanded_query.add(lemma.name().replace("_", " ").lower().split())
+                syss = lemma.name().replace("_", " ").lower().split()
+                expanded_query.update(syss)
 
     return query + [word for word in expanded_query if word not in query]
 
