@@ -43,8 +43,12 @@ nlps = {}
 for lang in LANGS:
     if lang == "ar":
         continue
-    spacy.cli.download(lang + "_core_news_sm")
-    nlps[lang] = spacy.load(lang + "_core_news_sm")
+    if lang == "en":
+        spacy.cli.download("en_core_web_sm")
+        nlps[lang] = spacy.load("en_core_web_sm")
+    else:
+        spacy.cli.download(lang + "_core_news_sm")
+        nlps[lang] = spacy.load(lang + "_core_news_sm")
 
 
 
