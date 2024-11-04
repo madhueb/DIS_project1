@@ -24,7 +24,7 @@ with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_sto
 
 translator = str.maketrans('', '', punctuations)
 
-LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
+LANGS = ["fr", "en", "de", "it", "es", "ar", "ko"]
 # LANGS = ["fr", "de", "it", "es", "ar", "ko"]
 
 tfidfs = {}
