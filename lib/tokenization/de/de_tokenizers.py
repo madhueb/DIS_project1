@@ -6,7 +6,7 @@ from tqdm import tqdm
 from typing import List
 
 
-class GermanTokenizer:
+class GermanTokenizerV2:
     MODEL_NAME = "de_core_news_md"
 
     def __init__(self):
