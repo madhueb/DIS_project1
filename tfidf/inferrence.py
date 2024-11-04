@@ -135,6 +135,7 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
     # query = tfidf.transform([query])
     # query = tfidf.transform([query], is_sparse=False)
     queries = tfidf.transform(tokens, is_query=True)
+    queries = queries.transpose()
 
     # make queries as csr matrix
     q_values = torch.tensor(queries.data, dtype=torch.float32)
@@ -142,7 +143,6 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
     q_col_indices = torch.tensor(queries.indices, dtype=torch.int32)
 
     # Create a PyTorch sparse_csr_tensor
-    queries = queries.transpose()
     queries = torch.sparse_csr_tensor(q_crow_indices, q_col_indices, q_values, size=queries.shape, device=tfidf.device)
     #tfidf_matrix = tfidf.tfidf_matrix
 
