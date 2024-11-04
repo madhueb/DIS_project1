@@ -1,5 +1,6 @@
 import argparse
 import pickle
+from pathlib import Path
 
 from bm25.bm25 import BM25
 
