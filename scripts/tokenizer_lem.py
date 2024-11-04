@@ -85,9 +85,9 @@ class ItalianTokenizer(BaseTokenizer):
         super().__init__("it_core_news_sm")
 
 
-# class GermanTokenizer(BaseTokenizer):
-#     def __init__(self):
-#         super().__init__("de_core_news_sm")
+class GermanTokenizer(BaseTokenizer):
+    def __init__(self):
+        super().__init__("de_core_news_sm")
 
 class GermanTokenizerV2:
     MODEL_NAME = "de_core_news_md"
@@ -184,8 +184,8 @@ def main():
     elif args.language == "fr":
         tokenizer = FrenchTokenizer()
     elif args.language == "de":
-        # tokenizer = GermanTokenizer()
-        tokenizer = GermanTokenizerV2()
+        tokenizer = GermanTokenizer()
+        # tokenizer = GermanTokenizerV2()
     elif args.language == "it":
         tokenizer = ItalianTokenizer()
     elif args.language == "es":

@@ -19,7 +19,7 @@ import gc
 
 from tqdm import tqdm
 
-from tokenization.de.de_tokenizers import GermanTokenizerV2
+# from tokenization.de.de_tokenizers import GermanTokenizerV2
 
 punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
 with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
@@ -104,9 +104,9 @@ def get_tokens(queries, lang):
                 tmp = []
                 start += 1
                 cnt = 0
-    if lang == "de":
-        tokenizer = GermanTokenizerV2()
-        tokens = tokenizer.tokenize_batch(queries, batch_size=32, n_process=4)
+    # if lang == "de":
+    #     tokenizer = GermanTokenizerV2()
+    #     tokens = tokenizer.tokenize_batch(queries, batch_size=32, n_process=4)
     else:
         queries = nlps[lang].pipe(
             queries, batch_size=32, n_process=4
