@@ -47,8 +47,8 @@ class Tf_Idf_Vectorizer:
 
         # Compute IDF
 
-        self.idf = np.log((num_docs +1 ) / (df +1))+1
-        # self.idf = np.log(num_docs / df) + 1
+        # self.idf = np.log((num_docs +1 ) / (df +1))+1
+        self.idf = np.log(num_docs / df) + 1
         return self
     
     @torch.no_grad()

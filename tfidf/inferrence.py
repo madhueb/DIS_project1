@@ -144,7 +144,7 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
             ]
             for query in tqdm(queries)
         ]
-    tokens = [synonym_expansion_nltk(query) for query in tokens]
+    # tokens = [synonym_expansion_nltk(query) for query in tokens]
     # queries = [query for query in queries if query["lang"] == lang]
     #load tfidf model
 
