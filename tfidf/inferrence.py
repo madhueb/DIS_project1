@@ -52,7 +52,7 @@ def preprocess_query(query, lang):
     if lang == "ar":
 
         # Step 1: Remove URLs
-        text = re.sub(r"http[s]?://\S+|www\.\S+", " ", query["query"])
+        text = re.sub(r"http[s]?://\S+|www\.\S+", " ", query)
 
         # Step 2: Remove long sequences of non-alphanumeric characters (e.g., encoded data or code)
         text = re.sub(r"[^\w\s]{4,}", " ", text)  # Removes any sequence of 4 or more non-alphanumeric characters
@@ -68,7 +68,7 @@ def preprocess_query(query, lang):
 
     else :
         # Step 1: Remove URLs
-        text = re.sub(r"http[s]?://\S+|www\.\S+", " ", query["query"])
+        text = re.sub(r"http[s]?://\S+|www\.\S+", " ", query)
 
         # Step 2: Remove long sequences of non-alphanumeric characters (e.g., encoded data or code)
         text = re.sub(r"[^\w\s]{4,}", " ", text)  # Removes any sequence of 4 or more non-alphanumeric characters
