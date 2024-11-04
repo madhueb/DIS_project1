@@ -51,6 +51,7 @@ if __name__ == "__main__":
                 if bm25_ind_doc_ids[i][l] not in docid:
                     docid.append(bm25_ind_doc_ids[i][l])
                 l += 1
+            doc_ids.append(docid)
 
         # queries.loc[queries["lang"] == lang, "docids"] = pd.Series(doc_ids, index=queries.loc[queries["lang"] == lang].index)
 
