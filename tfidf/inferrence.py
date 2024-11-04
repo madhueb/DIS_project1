@@ -139,7 +139,7 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
     #compute similarity between query and documents csr_matrix scipy
     sims = (tfidf.tfidf_matrix @ queries.transpose()).toarray()
     print(sims.shape)
-    top_k_index = np.argsort(sims.T, axis=1)[-k:]
+    top_k_index = np.argsort(sims.T, axis=1)[:, -k:]
     # # make queries as csr matrix
     # queries = queries.transpose()
     #
