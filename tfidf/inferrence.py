@@ -208,7 +208,8 @@ if __name__ == "__main__":
     # with open(f'{args.token_dir}/corpus.json/corpus.json', "r") as f:
     #     documents = json.load(f)
 
-    queries = pd.read_csv(f'{args.token_dir}/train.csv')
+    # queries = pd.read_csv(f'{args.token_dir}/train.csv')
+    queries = pd.read_csv(f'{args.token_dir}/test.csv')
     # # queries = queries[queries["lang"]=="fr"][:2]
     # queries = queries[queries["lang"].isin(LANGS)]
     # queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
@@ -227,14 +228,16 @@ if __name__ == "__main__":
     for lang in LANGS:
         queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]].reset_index(drop=True)
         doc_ids = retrieve_top_k(queries_lang["query"].tolist(), lang)
-        acc = 0
-        for i, row in queries_lang.iterrows():
-            if row["positive_docs"] in doc_ids[i]:
-                acc += 1
-        print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
+        queries[queries["lang"] == lang]["docids"] = doc_ids
+        # acc = 0
+        # for i, row in queries_lang.iterrows():
+        #     if row["positive_docs"] in doc_ids[i]:
+        #         acc += 1
+        # print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
         gc.collect()
-        # clear memory
 
 
         # queries_lang.to_csv(f"{args.token_dir}/train_{lang}.csv", index=False)
         # print(f"Saved {lang} queries")
+    queries = queries[["id", "docids"]]
+    queries.to_csv(f"{args.token_dir}/submission.csv", index=False)
