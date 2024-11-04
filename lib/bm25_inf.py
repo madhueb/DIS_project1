@@ -9,7 +9,7 @@ import pandas as pd
 
 from utils import get_tokens
 
-LANGS = ["fr", "en", "de", "it", "es", "ar", "ko"]
+LANGS = ["fr", "de", "it", "es", "ar", "ko", "en"]
 with open("/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/data/ids_dict.json", "r") as f:
     ids_dict = json.load(f)
 
