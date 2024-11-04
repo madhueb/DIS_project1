@@ -38,10 +38,18 @@ if __name__ == "__main__":
 
         doc_ids = []
         for i in range(len(queries_lang)):
-            docid = list(set(bm25_ind_doc_ids[i][:k_b] + tfidf_doc_ids[i][:k - k_b]))
-            if len(docid) < k:
-                docid = bm25_ind_doc_ids[i][:k]
-            doc_ids.append(docid)
+            # docid = list(set(bm25_ind_doc_ids[i][:k_b] + tfidf_doc_ids[i][:k - k_b]))
+            # if len(docid) < k:
+            #     docid = bm25_ind_doc_ids[i][:k]
+            # doc_ids.append(docid)
+            docid = bm25_ind_doc_ids[i][:k_b]
+            for rec in tfidf_doc_ids[i][:k - k_b]:
+                if rec not in docid:
+                    docid.append(rec)
+            l = k_b
+            while len(docid) < k:
+                if bm25_ind_doc_ids[i][l] not in docid:
+                    docid.append(bm25_ind_doc_ids[i][l])
 
         # queries.loc[queries["lang"] == lang, "docids"] = pd.Series(doc_ids, index=queries.loc[queries["lang"] == lang].index)
 
