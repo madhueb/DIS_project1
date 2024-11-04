@@ -176,17 +176,28 @@ if __name__ == "__main__":
     #     documents = json.load(f)
 
     queries = pd.read_csv(f'{args.token_dir}/train.csv')
-    # queries = queries[queries["lang"]=="fr"][:2]
-    queries = queries[queries["lang"].isin(LANGS)]
-    queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
-    lang_accuracy = {lang: 0 for lang in LANGS}
-    for i, row in queries.iterrows():
-        # if row["positive_docs"] in row["doc_ids"]:
-        #     print("Document found in top 10")
-        # else:
-        #     print("Document not found in top 10")
-        lang = row["lang"]
-        if row["positive_docs"] in row["doc_ids"]:
-            lang_accuracy[lang] += 1
-    lang_accuracy = {lang: acc / len(queries[queries["lang"] == lang]) for lang, acc in lang_accuracy.items()}
-    print(lang_accuracy)
+    # # queries = queries[queries["lang"]=="fr"][:2]
+    # queries = queries[queries["lang"].isin(LANGS)]
+    # queries["doc_ids"] = queries.apply(retrieve_top_k, axis=1)
+    # lang_accuracy = {lang: 0 for lang in LANGS}
+    # for i, row in queries.iterrows():
+    #     # if row["positive_docs"] in row["doc_ids"]:
+    #     #     print("Document found in top 10")
+    #     # else:
+    #     #     print("Document not found in top 10")
+    #     lang = row["lang"]
+    #     if row["positive_docs"] in row["doc_ids"]:
+    #         lang_accuracy[lang] += 1
+    # lang_accuracy = {lang: acc / len(queries[queries["lang"] == lang]) for lang, acc in lang_accuracy.items()}
+    # print(lang_accuracy)
+
+    for lang in LANGS:
+        queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]]
+        doc_ids = retrieve_top_k(queries_lang["query"].tolist(), lang)
+        acc = 0
+        for i, row in queries_lang.iterrows():
+            if row["positive_docs"] in doc_ids[i]:
+                acc += 1
+        print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
+        # queries_lang.to_csv(f"{args.token_dir}/train_{lang}.csv", index=False)
+        # print(f"Saved {lang} queries")
