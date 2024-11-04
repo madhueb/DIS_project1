@@ -20,6 +20,24 @@ punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + 
 with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
     ar_stop_words = file.read().split('\n') + list(nltk.corpus.stopwords.words("arabic"))
 
+
+# LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
+LANGS = ["fr", "de", "it", "es", "ar", "ko"]
+tfidfs = {}
+print("cuda available : ", torch.cuda.is_available())
+for lang in LANGS:
+    with open(f"tfidf_{lang}.pkl", "rb") as f:
+        tfidfs[lang] = pickle.load(f)
+        tfidfs[lang].device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        print(f"device for {lang} : {tfidfs[lang].device}")
+
+# load doc ids dict with json
+with open("/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/data/ids_dict.json", "r") as f:
+    ids_dict = json.load(f)
+for lang in LANGS:
+    spacy.cli.download(lang + "_core_news_sm")
+nlps = {lang: spacy.load(lang + "_core_news_sm") for lang in LANGS}
+
 def preprocess_query(query):
     lang = query["lang"]
     if lang == "ar":
@@ -62,25 +80,10 @@ def preprocess_query(query):
 
         # Step 4: Tokenize
 
-        nlp = spacy.load(lang+"_core_news_sm")
-        doc = nlp(text)
+        doc = nlps[lang](text)
         tokens = [token.lemma_ for token in doc if not token.is_stop and not token.is_punct]
         return tokens
-    
 
-# LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
-LANGS = ["fr", "de", "it", "es", "ar", "ko"]
-tfidfs = {}
-print("cuda available : ", torch.cuda.is_available())
-for lang in LANGS:
-    with open(f"tfidf_{lang}.pkl", "rb") as f:
-        tfidfs[lang] = pickle.load(f)
-        tfidfs[lang].device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        print(f"device for {lang} : {tfidfs[lang].device}")
-
-# load doc ids dict with json
-with open("/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/data/ids_dict.json", "r") as f:
-    ids_dict = json.load(f)
 
 
 def retrieve_top_k (query, batch_size=1000, k=10):
