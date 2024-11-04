@@ -41,7 +41,7 @@ if __name__ == "__main__":
         doc_ids = []
         for tokenized_query in tokens:
             indices, _ = bm25_ind.match(tokenized_query, k=10)
-            doc_ids.append(ids_dict[lang][indices])
+            doc_ids.append(ids_dict[lang][indices].tolist())
 
         queries.loc[queries["lang"] == lang, "docids"] = pd.Series(doc_ids, index=queries.loc[queries["lang"] == lang].index)
 
