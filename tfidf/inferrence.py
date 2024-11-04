@@ -50,7 +50,8 @@ for lang in LANGS:
         spacy.cli.download(lang + "_core_news_sm")
         nlps[lang] = spacy.load(lang + "_core_news_sm")
 
-
+import nltk
+nltk.download('wordnet')
 from nltk.corpus import wordnet
 
 def synonym_expansion_nltk(query):
