@@ -14,6 +14,7 @@ import nltk
 import json
 import argparse
 from pathlib import Path
+import gc
 
 from tqdm import tqdm
 
@@ -199,5 +200,9 @@ if __name__ == "__main__":
             if row["positive_docs"] in doc_ids[i]:
                 acc += 1
         print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
+        # clear memory
+        torch.cuda.empty_cache()
+        gc.collect()
+
         # queries_lang.to_csv(f"{args.token_dir}/train_{lang}.csv", index=False)
         # print(f"Saved {lang} queries")
