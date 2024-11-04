@@ -34,9 +34,13 @@ for lang in LANGS:
 # load doc ids dict with json
 with open("/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/data/ids_dict.json", "r") as f:
     ids_dict = json.load(f)
+
+nlps = {}
 for lang in LANGS:
+    if lang == "ar":
+        continue
     spacy.cli.download(lang + "_core_news_sm")
-nlps = {lang: spacy.load(lang + "_core_news_sm") for lang in LANGS}
+    nlps[lang] = spacy.load(lang + "_core_news_sm")
 
 def preprocess_query(query):
     lang = query["lang"]
