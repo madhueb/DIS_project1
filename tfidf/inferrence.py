@@ -143,7 +143,7 @@ def retrieve_top_k (queries, lang, batch_size=1000, k=10):
 
     # Create a PyTorch sparse_csr_tensor
     queries = torch.sparse_csr_tensor(q_crow_indices, q_col_indices, q_values, size=queries.shape, device=tfidf.device)
-
+    queries = queries.transpose()
     #tfidf_matrix = tfidf.tfidf_matrix
 
     #Compute cosine similarity by batches :

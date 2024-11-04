@@ -131,7 +131,8 @@ class Tf_Idf_Vectorizer:
         # top_k = [idx for idx, _ in sorted(top_k_sims, key=lambda x: x[1], reverse=True)][:k]
         # return top_k
 
-        sims = torch.mm(self.tfidf_matrix, tf_q.T)
+        # sims = torch.mm(self.tfidf_matrix, tf_q.T)
+        sims = torch.sparse.mm(self.tfidf_matrix, tf_q)
         top_k_index = torch.topk(sims.T, k, largest=True, dim=1).indices.cpu().numpy()
         return top_k_index
 
