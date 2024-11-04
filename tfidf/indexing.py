@@ -2,8 +2,7 @@ from Tf_Idf import Tf_Idf_Vectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import pickle 
-import autofaiss
-import faiss
+
 import argparse
 from pathlib import Path
 

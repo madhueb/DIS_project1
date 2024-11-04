@@ -1,7 +1,6 @@
 import numpy as np 
 import pickle
-import faiss
-import autofaiss
+
 import pandas as pd
 import re
 import spacy
@@ -15,8 +14,7 @@ import nltk
 import json
 import argparse
 from pathlib import Path
-from sklearn.metrics.pairwise import cosine_similarity
-from Tf_Idf import Tf_Idf_Vectorizer
+
 
 punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
 with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
