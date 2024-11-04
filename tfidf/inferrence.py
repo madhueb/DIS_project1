@@ -29,6 +29,7 @@ for lang in LANGS:
     with open(f"tfidf_{lang}.pkl", "rb") as f:
         tfidfs[lang] = pickle.load(f)
         tfidfs[lang].device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        tfidfs[lang].idf = tfidfs[lang].idf.to(tfidfs[lang].device)
         print(f"device for {lang} : {tfidfs[lang].device}")
 
 # load doc ids dict with json
