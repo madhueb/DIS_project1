@@ -7,7 +7,7 @@ from tqdm import tqdm
 from sklearn.preprocessing import normalize
 import pickle
 import numpy as np
-
+from transformers.utils.hub import torch_cache_home
 
 
 class Tf_Idf_Vectorizer:
@@ -85,21 +85,26 @@ class Tf_Idf_Vectorizer:
         self.tfidf_matrix = self.transform(documents)
 
     @torch.no_grad()
-    def batch (self, tfidf, tf_q, batch_size, k):
-        # Compute the cosine similarity between the query and the documents
-        top_k_sims = []
-        num_docs = tfidf.shape[0]
-        tf_q = torch.tensor(tf_q, device=self.device)
-        for i in tqdm(range(0, num_docs, batch_size)):
-            batch = tfidf[i:i + batch_size]
-            #Compute cosine similarity between the query and the batch
-            batch = torch.tensor(batch.toarray(), device=self.device)
-            sims = torch.mm(batch, tf_q.T)
+    def batch (self, tf_q, batch_size, k):
+        # # Compute the cosine similarity between the query and the documents
+        # top_k_sims = []
+        # num_docs = tfidf_matrix.shape[0]
+        # # tf_q = torch.tensor(tf_q, device=self.device)
+        # for i in tqdm(range(0, num_docs, batch_size)):
+        #     batch = tfidf_matrix[i:i + batch_size]
+        #     #Compute cosine similarity between the query and the batch
+        #     batch = torch.tensor(batch.toarray(), device=self.device)
+        #     sims = torch.mm(batch, tf_q.T)
+        #
+        #     # top_k_index = i + sims.argsort(axis=0)[-k:]
+        #     top_k_index = torch.topk(sims.T, k, largest=True).indices.flatten().cpu().numpy()
+        #     # top_k_sims.update({idx: sims[idx-i] for idx in top_k_index})
+        #     top_k_sims.extend([(i + idx, sims[idx].item()) for idx in top_k_index])
+        #
+        # top_k = [idx for idx, _ in sorted(top_k_sims, key=lambda x: x[1], reverse=True)][:k]
+        # return top_k
 
-            # top_k_index = i + sims.argsort(axis=0)[-k:]
-            top_k_index = torch.topk(sims.T, k, largest=True).indices.flatten().cpu().numpy()
-            # top_k_sims.update({idx: sims[idx-i] for idx in top_k_index})
-            top_k_sims.extend([(i + idx, sims[idx].item()) for idx in top_k_index])
-        
-        top_k = [idx for idx, _ in sorted(top_k_sims, key=lambda x: x[1], reverse=True)][:k]
-        return top_k
+        sims = torch.mm(self.tfidf_matrix, tf_q.T)
+        top_k_index = torch.topk(sims.T, k, largest=True, dim=1).indices.cpu().numpy()
+        return top_k_index
+

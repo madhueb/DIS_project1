@@ -15,11 +15,13 @@ import json
 import argparse
 from pathlib import Path
 
+from tqdm import tqdm
 
 punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
 with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
     ar_stop_words = file.read().split('\n') + list(nltk.corpus.stopwords.words("arabic"))
 
+translator = str.maketrans('', '', punctuations)
 
 # LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
 LANGS = ["fr", "de", "it", "es", "ar", "ko"]
@@ -43,17 +45,17 @@ for lang in LANGS:
     spacy.cli.download(lang + "_core_news_sm")
     nlps[lang] = spacy.load(lang + "_core_news_sm")
 
-def preprocess_query(query):
-    lang = query["lang"]
-    if lang == "ar":
 
+
+
+def preprocess_query(query, lang):
+    if lang == "ar":
 
         # Step 1: Remove URLs
         text = re.sub(r"http[s]?://\S+|www\.\S+", " ", query["query"])
 
         # Step 2: Remove long sequences of non-alphanumeric characters (e.g., encoded data or code)
         text = re.sub(r"[^\w\s]{4,}", " ", text)  # Removes any sequence of 4 or more non-alphanumeric characters
-        translator = str.maketrans('', '', punctuations)
         text = text.translate(translator)
 
         # Step 4: Remove excessive whitespace
@@ -62,16 +64,7 @@ def preprocess_query(query):
         # Step 5: Remove diacritics
         text = dediac_ar(text)
 
-        # Step 6: Tokenize text
-        tokens = simple_word_tokenize(text)
-
-        # Step 7: Lemmatize each token and remove stopwords
-        mle = MLEDisambiguator.pretrained() 
-        disambig = mle.disambiguate(tokens)
-
-        lemmas = [dediac_ar(d.analyses[0].analysis['lex']).translate(translator) for d in disambig]
-        lemmas = [lemma for lemma in lemmas if lemma not in ar_stop_words]
-        return lemmas
+        return text
 
     else :
         # Step 1: Remove URLs
@@ -83,32 +76,76 @@ def preprocess_query(query):
         # Step 3: Remove excessive whitespace
         text = re.sub(r"\s+", " ", text.replace("\n", " ")).strip().lower()
 
-        # Step 4: Tokenize
 
-        doc = nlps[lang](text)
-        tokens = [token.lemma_ for token in doc if not token.is_stop and not token.is_punct]
-        return tokens
+        return text
 
 
 
-def retrieve_top_k (query, batch_size=1000, k=10):
-    lang = query["lang"]
+def retrieve_top_k (queries, lang, batch_size=1000, k=10):
 
     tfidf = tfidfs[lang]
     # pos_doc = query["positive_docs"]
 
-    query = preprocess_query(query)
+    queries = [preprocess_query(query, lang) for query in queries]
+    if lang == "ar":
+        all_tokens = []
+        tokens_len = []
+        for query in queries:
+            tokens = simple_word_tokenize(query)
+            all_tokens.extend(tokens)
+            tokens_len.append(len(tokens))
+
+        mle = MLEDisambiguator.pretrained()
+        disambig = mle.disambiguate(all_tokens)
+
+        tokens = []
+        start = 0
+        cnt = 0
+        tmp = []
+        for d in disambig:
+            token = dediac_ar(d.analyses[0].analysis['lex']).translate(translator)
+            if token not in ar_stop_words:
+                tmp.append(token)
+            cnt += 1
+            if cnt == tokens_len[start]:
+                tokens.append(tmp)
+                tmp = []
+                start += 1
+                cnt = 0
+    else:
+        queries = nlps[lang].pipe(
+            queries, batch_size=32, n_process=4
+        )
+        tokens = [
+            [
+                token.lemma_
+                for token in query
+                if not token.is_stop
+                and not token.is_punct
+                # and self.TOKEN_PATTERN.match(token.text)
+            ]
+            for query in tqdm(queries)
+        ]
+    # queries = [query for query in queries if query["lang"] == lang]
     #load tfidf model
 
     
     #transform query
     # query = tfidf.transform([query])
-    query = tfidf.transform([query], is_sparse=False)
+    # query = tfidf.transform([query], is_sparse=False)
+    queries = tfidf.transform(tokens, is_sparse=False)
     #tfidf_matrix = tfidf.tfidf_matrix
 
     #Compute cosine similarity by batches :
 
-    top_k_index = tfidf.batch(tfidf.tfidf_matrix, query, batch_size, k)
+    values = torch.tensor(tfidf.tfidf_matrix.data, dtype=torch.float32)
+    crow_indices = torch.tensor(tfidf.tfidf_matrix.indptr, dtype=torch.int32)
+    col_indices = torch.tensor(tfidf.tfidf_matrix.indices, dtype=torch.int32)
+
+    # Create a PyTorch sparse_csr_tensor
+    tfidf.tfidf_matrix = torch.sparse_csr_tensor(crow_indices, col_indices, values, size=tfidf.tfidf_matrix.shape, device=tfidf.device)
+
+    top_k_index = tfidf.batch(queries, batch_size, k)
 
     # doc_ids = np.array([doc["docid"] for doc in documents if doc["lang"] == lang])
     # pos_doc_index = np.where(doc_ids == pos_doc)[0][0]
