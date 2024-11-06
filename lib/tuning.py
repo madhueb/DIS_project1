@@ -3,8 +3,8 @@ import pandas as pd
 from pathlib import Path
 import pickle
 from typing import List
-from lib.utils import get_tokens
-from lib.bm25.bm25 import BM25
+from utils import get_tokens
+from bm25.bm25 import BM25
 
 
 def recall_at_k(ranks: List[int], k: int) -> float:
