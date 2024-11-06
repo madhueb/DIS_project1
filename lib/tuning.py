@@ -1,4 +1,6 @@
 import argparse
+import json
+
 import pandas as pd
 from pathlib import Path
 import pickle
@@ -40,6 +42,7 @@ def main() -> None:
     parser.add_argument("--dataset_path", type=Path)
     parser.add_argument("--corpus_path", type=Path)
     parser.add_argument("--output_path", type=Path)
+    parser.add_argument("--corpus_ids", type=Path)
 
     args = parser.parse_args()
 
@@ -52,7 +55,10 @@ def main() -> None:
     output_path = args.output_path
 
     with open(corpus_path, mode="rb") as f:
-        corpus_ids, corpus_tokens = pickle.load(f)
+        corpus_tokens = pickle.load(f)
+
+    with open(args.corpus_ids, "r") as f:
+        corpus_ids = json.load(f)[lang]
 
     df = pd.read_csv(dataset_path)
     df = df[df["lang"] == lang]
