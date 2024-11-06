@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 import pickle
 
 import pandas as pd
@@ -17,6 +17,8 @@ from pathlib import Path
 import gc
 
 from tqdm import tqdm
+
+from utils import get_tokens
 
 punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
 with open('/nfs/scistore16/krishgrp/mansarip/Jupyter/DIS_project1/scripts/ar_stopwords.txt', 'r') as file:
@@ -52,8 +54,10 @@ for lang in LANGS:
         nlps[lang] = spacy.load(lang + "_core_news_sm")
 
 import nltk
+
 nltk.download('wordnet')
 from nltk.corpus import wordnet
+
 
 def synonym_expansion_nltk(query):
     expanded_query = set(query)
@@ -65,6 +69,7 @@ def synonym_expansion_nltk(query):
                 expanded_query.update(syss)
 
     return query + [word for word in expanded_query if word not in query]
+
 
 def preprocess_query(query, lang):
     if lang == "ar":
@@ -84,7 +89,7 @@ def preprocess_query(query, lang):
 
         return text
 
-    else :
+    else:
         # Step 1: Remove URLs
         text = re.sub(r"http[s]?://\S+|www\.\S+", " ", query)
 
@@ -94,13 +99,10 @@ def preprocess_query(query, lang):
         # Step 3: Remove excessive whitespace
         text = re.sub(r"\s+", " ", text.replace("\n", " ")).strip().lower()
 
-
         return text
 
 
-
-def retrieve_top_k (tokens, lang, batch_size=1000, k=10):
-
+def retrieve_top_k(tokens, lang, batch_size=1000, k=10):
     tfidf = tfidfs[lang]
     # # pos_doc = query["positive_docs"]
     #
@@ -158,9 +160,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-dir", "--token_dir", type=Path, default = "./data")
+    parser.add_argument("-dir", "--token_dir", type=Path, default="./data")
     args = parser.parse_args()
-    
+
     # #Load query :
     # queries = pd.read_csv("data/test.csv")
     # queries ["doc_ids"] = queries.apply(retrieve_top_k)
@@ -170,25 +172,25 @@ if __name__ == "__main__":
     # with open(f'{args.token_dir}/corpus.json/corpus.json', "r") as f:
     #     documents = json.load(f)
 
-    # queries = pd.read_csv(f'{args.token_dir}/train.csv')
-    queries = pd.read_csv(f'{args.token_dir}/test.csv')
-
+    queries = pd.read_csv(f'{args.token_dir}/train.csv')
+    # queries = pd.read_csv(f'{args.token_dir}/test.csv')
 
     ls = [[] for _ in range(len(queries))]
     queries["docids"] = ls
     for lang in LANGS:
-        # queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]].reset_index(drop=True)
-        queries_lang = queries[queries["lang"] == lang][["query"]].reset_index(drop=True)
-        doc_ids = retrieve_top_k(queries_lang["query"].tolist(), lang)
-        queries.loc[queries["lang"] == lang, "docids"] = pd.Series([doc_id.tolist() for doc_id in doc_ids], index=queries.loc[queries["lang"] == lang].index)
+        queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]].reset_index(drop=True)
+        # queries_lang = queries[queries["lang"] == lang][["query"]].reset_index(drop=True)
+        tokens = get_tokens([query for query in queries_lang["query"].tolist()], lang)
+        doc_ids = retrieve_top_k(tokens, lang)
+        queries.loc[queries["lang"] == lang, "docids"] = pd.Series([doc_id.tolist() for doc_id in doc_ids],
+                                                                   index=queries.loc[queries["lang"] == lang].index)
 
-        # acc = 0
-        # for i, row in queries_lang.iterrows():
-        #     if row["positive_docs"] in doc_ids[i]:
-        #         acc += 1
-        # print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
+        acc = 0
+        for i, row in queries_lang.iterrows():
+            if row["positive_docs"] in doc_ids[i]:
+                acc += 1
+        print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
         gc.collect()
-
 
         # queries_lang.to_csv(f"{args.token_dir}/train_{lang}.csv", index=False)
         # print(f"Saved {lang} queries")
