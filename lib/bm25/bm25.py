@@ -8,6 +8,7 @@ from tqdm import tqdm
 from typing import Dict
 from typing import Optional
 from typing import List
+from typing import Tuple
 
 
 class BM25:
@@ -78,12 +79,22 @@ class BM25:
         )
         return np.array(self.bm25[:, token_ids].sum(axis=1))[:, 0]
 
-    def match(self, query: List[str], k: Optional[int] = None) -> np.ndarray:
+    def match(
+        self, query: List[str], k: Optional[int] = None
+    ) -> Tuple[np.ndarray, np.ndarray]:
         scores = self._scores(query)
         indices = np.argsort(scores)[::-1]
         if k is not None:
             indices = indices[:k]
         return indices, scores[indices]
+
+    def match_and_eval(
+        self, query: List[str], target: int
+    ) -> Tuple[np.ndarray, float, int]:
+        scores = self._scores(query)
+        score_target = scores[target]
+        rank_target = sum(score_target <= score for score in scores)
+        return scores, score_target, rank_target
 
     def save(self, path: Path) -> None:
         with open(path, "wb") as f:
