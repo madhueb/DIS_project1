@@ -1,0 +1,73 @@
+import numpy as np
+import pickle
+
+import pandas as pd
+
+import json
+import argparse
+from pathlib import Path
+import gc
+
+from src.bm25_tfidf.tokenizer import (
+    FrenchTokenizer,
+    EnglishTokenizer,
+    GermanTokenizer,
+    ItalianTokenizer,
+    SpanishTokenizer,
+    ArabicTokenizer,
+    KoreanTokenizer
+)
+
+LANGS = ["fr", "de", "it", "es", "ar", "ko", "en"]
+
+tokenizers = {"fr": FrenchTokenizer(), "de": GermanTokenizer(), "it": ItalianTokenizer(), "es": SpanishTokenizer(),
+              "ar": ArabicTokenizer(), "ko": KoreanTokenizer(), "en": EnglishTokenizer()}
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--token_dir", type=Path, default="./data")
+    parser.add_argument("--ids_path", type=Path, default="./data/ids_dict.json")
+    parser.add_argument("--tfidf_path", type=Path, default=".")
+    tfidfs = {}
+    args = parser.parse_args()
+    for lang in LANGS:
+        with open(f"{args.tfidf_path}/tfidf_{lang}.pkl", "rb") as f:
+            tfidfs[lang] = pickle.load(f)
+
+    # load doc ids dict with json
+    with open(args.ids_path, "r") as f:
+        ids_dict = json.load(f)
+
+    for lang in LANGS:
+        ids_dict[lang] = np.array(ids_dict[lang])
+
+    tfidfs = {}
+    for lang in LANGS:
+        with open(f"tfidf_{lang}.pkl", "rb") as f:
+            tfidfs[lang] = pickle.load(f)
+
+
+    queries = pd.read_csv(f'{args.token_dir}/train.csv')
+    # queries = pd.read_csv(f'{args.token_dir}/test.csv')
+
+    ls = [[] for _ in range(len(queries))]
+    queries["docids"] = ls
+    for lang in LANGS:
+        queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]].reset_index(drop=True)
+        # queries_lang = queries[queries["lang"] == lang][["query"]].reset_index(drop=True)
+        tokens = tokenizers[lang].tokenize([query for query in queries_lang["query"].tolist()], lang)
+        doc_ids = tfidfs[lang](tokens, lang)
+        queries.loc[queries["lang"] == lang, "docids"] = pd.Series([doc_ids[lang][doc_id].tolist() for doc_id in doc_ids],
+                                                                   index=queries.loc[queries["lang"] == lang].index)
+
+        acc = 0
+        for i, row in queries_lang.iterrows():
+            if row["positive_docs"] in doc_ids[i]:
+                acc += 1
+        print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
+        gc.collect()
+
+    queries = queries[["id", "docids"]]
+    queries.to_csv(f"{args.token_dir}/submission.csv", index=False)
