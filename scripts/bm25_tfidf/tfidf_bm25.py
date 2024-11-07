@@ -65,7 +65,7 @@ if __name__ == "__main__":
     for lang in LANGS:
         queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]].reset_index(drop=True)
         # queries_lang = queries[queries["lang"] == lang][["query"]].reset_index(drop=True)
-        tokens = tokenizers[lang].tokenize(queries_lang["query"].tolist(), lang)
+        tokens = tokenizers[lang].tokenize(queries_lang["query"].tolist())
         bm25_ind = bm25s[lang]
         bm25_ind_doc_ids = []
         for tokenized_query in tokens:
