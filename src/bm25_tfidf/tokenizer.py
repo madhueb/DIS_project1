@@ -91,7 +91,7 @@ class ArabicTokenizer:
         self.translator = str.maketrans('', '', punctuations)
         self.mle = MLEDisambiguator.pretrained()
         nltk.download('stopwords')
-        with importlib.resources.open_text("bm25_tfidf", "ar_stopwords.txt") as file:
+        with importlib.resources.open_text("src.bm25_tfidf", "ar_stopwords.txt") as file:
             self.stop_words = file.read().split('\n') + list(nltk.corpus.stopwords.words("arabic"))
 
 
