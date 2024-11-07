@@ -13,6 +13,8 @@ from camel_tools.tokenizers.word import simple_word_tokenize
 
 from camel_tools.disambig.mle import MLEDisambiguator
 
+import importlib.resources
+
 
 class BaseTokenizer:
 
@@ -89,8 +91,7 @@ class ArabicTokenizer:
         self.translator = str.maketrans('', '', punctuations)
         self.mle = MLEDisambiguator.pretrained()
         nltk.download('stopwords')
-        stop_words_path = 'ar_stopwords.txt'
-        with open(stop_words_path, 'r') as file:
+        with importlib.resources.open_text("bm25_tfidf", "ar_stopwords.txt") as file:
             self.stop_words = file.read().split('\n') + list(nltk.corpus.stopwords.words("arabic"))
 
 
