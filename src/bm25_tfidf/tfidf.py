@@ -10,7 +10,31 @@ import numpy as np
 
 
 class Tf_Idf_Vectorizer:
+    """
+    TF-IDF Vectorizer implementation.
+
+    Attributes:
+        idf (np.ndarray): Inverse document frequency.
+        vocab (Dict[str, int]): Mapping of tokens to vocabulary indices.
+        device (str): Device to use for computation.
+        min_df (int): Minimum document frequency for a token to be considered.
+        max_df (float): Maximum document frequency for a token to be considered.
+        tfidf_matrix (csr_matrix): TF-IDF matrix for the corpus.
+    
+    Methods:   
+        fit(documents: List[List[str]]) -> Tf_Idf_Vectorizer: Fit the vectorizer to the documents.
+        transform(documents: List[List[str]], is_query: bool = False) -> csr_matrix: Transform documents into TF-IDF matrix.
+        fit_transform(documents: List[List[str]]) -> None: Fit the vectorizer to the documents and transform them.
+        retrieve_top_k(tokens: List[List[str]], k: int = 10) -> np.ndarray: Retrieve top k documents for a query.
+    """
     def __init__(self, min_df=1, max_df=1.0, device='cuda' if torch.cuda.is_available() else 'cpu'):
+        """
+        Initialize TF-IDF Vectorizer.
+        Args:
+            min_df (int): Minimum document frequency for a token to be considered.
+            max_df (float): Maximum document frequency for a token to be considered.
+            device (str): Device to use for computation.
+        """
         self.idf = None
         self.vocab = None
         self.device = device
@@ -20,6 +44,13 @@ class Tf_Idf_Vectorizer:
 
     @torch.no_grad()
     def fit(self, documents):
+        """
+        Fit the vectorizer to the documents by computing the IDF.
+        Args:
+            documents (List[List[str]]): List of documents.
+        Returns:
+            Tf_Idf_Vectorizer: Fitted vectorizer.
+        """
 
         # Construct the vocabulary
         vocab = set(word for doc in documents for word in doc)
@@ -43,6 +74,14 @@ class Tf_Idf_Vectorizer:
 
     @torch.no_grad()
     def transform(self, documents, is_query=False):
+        """
+        Transform documents into TF-IDF matrix.
+        Args:
+            documents (List[List[str]]): List of documents.
+            is_query (bool): Whether the documents are queries.
+        Returns:
+            csr_matrix: TF-IDF matrix.
+        """
         num_docs = len(documents)
         vocab_size = len(self.vocab)
 
@@ -84,10 +123,23 @@ class Tf_Idf_Vectorizer:
         return tf_idf
 
     def fit_transform(self, documents):
+        """
+        Fit the vectorizer to the documents and transform them.
+        Args:
+            documents (List[List[str]]): List of documents.
+        """
         self.fit(documents)
         self.tfidf_matrix = self.transform(documents)
 
     def retrieve_top_k(self, tokens, k=10):
+        """
+        Retrieve top k documents for a query.
+        Args:
+            tokens (List[List[str]]): List of query tokens.
+            k (int): Number of documents to retrieve.
+        Returns:
+            np.ndarray: Top k document indices.
+        """
 
         queries = self.transform(tokens, is_query=True)
 

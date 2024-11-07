@@ -26,7 +26,9 @@ LANGS = ["ar"]
 
 class BaseTokenizer:
 
+
     def __init__(self, stop_words_path=None):
+
         punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
         self.translator = str.maketrans('', '', punctuations)
         self.mle = MLEDisambiguator.pretrained()
