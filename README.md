@@ -14,13 +14,17 @@ This project is part of the course CS-423 Distributed Information System at EPFL
 `scripts/`: Directory containing all the scripts for running experiments and evaluations
   - `bm25_tfidf/`: Scripts for BM25 and TF-IDF indexing and retrieval
   - `dpr/`: Scripts for DPR (Dense Passage Retrieval) model training and inference
+    
 `src/`: Main source code directory
   - `bm25_tfidf/`: Implementation of BM25 and TF-IDF models and utility functions
   - `dpr/`: Implementation of DPR models, encoders, and related modules
 
 `init.py`: Makes the src directory a Python package
+
 `README.md`: Documentation and overview of the project
+
 `requirements.txt`: List of dependencies needed to run the project
+
 `setup.py`: Setup script for package installation
 
 
