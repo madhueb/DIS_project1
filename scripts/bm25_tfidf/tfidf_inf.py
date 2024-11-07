@@ -58,8 +58,9 @@ if __name__ == "__main__":
         queries_lang = queries[queries["lang"] == lang][["query", "positive_docs"]].reset_index(drop=True)
         # queries_lang = queries[queries["lang"] == lang][["query"]].reset_index(drop=True)
         tokens = tokenizers[lang].tokenize([query for query in queries_lang["query"].tolist()])
-        doc_ids = tfidfs[lang].retrieve_top_k(tokens, k=10)
-        queries.loc[queries["lang"] == lang, "docids"] = pd.Series([doc_ids[lang][doc_id].tolist() for doc_id in doc_ids],
+        ids_ = tfidfs[lang].retrieve_top_k(tokens, k=10)
+        doc_ids = [ids_dict[lang][doc_id].tolist() for doc_id in ids_]
+        queries.loc[queries["lang"] == lang, "docids"] = pd.Series(doc_ids,
                                                                    index=queries.loc[queries["lang"] == lang].index)
 
         acc = 0
