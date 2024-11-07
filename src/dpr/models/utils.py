@@ -2,6 +2,14 @@ import torch
 
 
 def pooling(hidden_states, attention_mask):
+    """
+    Pooling the hidden states into a single mean vector
+    Args:
+        hidden_states: hidden states from the model
+        attention_mask: attention mask from the model
+    Returns:
+        mean_embeddings: mean embeddings of the hidden states
+    """
     input_mask_expanded = attention_mask.unsqueeze(-1).expand(hidden_states.size()).float()
     sum_embeddings = torch.sum(hidden_states * input_mask_expanded, 1)
     sum_mask = input_mask_expanded.sum(1)
@@ -11,6 +19,16 @@ def pooling(hidden_states, attention_mask):
 
 
 def query_embedding(query, model, tokenizer, config):
+    """
+    Compute embeddings for the given query
+    Args:
+        query: input query
+        model: pre-trained model
+        tokenizer: tokenizer for the model
+        config: configuration dictionary
+    Returns:
+        outputs: embeddings for the query
+    """
     model.eval()
     with torch.no_grad():
         inputs = tokenizer(query,

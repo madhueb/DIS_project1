@@ -18,14 +18,37 @@ LANGS = ["en", "fr", "de", "it", "es", "ar", "ko"]
 
 
 class BaseTokenizer:
+    """
+    Base tokenizer class.
+    
+    Attributes:
+        nlp (spacy.Language): Spacy NLP pipeline.
+        stop_words (Set[str]): Set of stop words.
+        
+    Methods:
+        preprocess_text(text: str) -> str: Preprocess text.
+        tokenize_batch(texts: List[str], batch_size: int = 64, n_process: int = 8) -> List[List[str]]: Tokenize texts.
+        """
 
     def __init__(self, model_name: str):
+        """
+        Initialize BaseTokenizer.
+        Args:
+            model_name (str): Spacy model name.
+        """
         spacy.cli.download(model_name)
         self.nlp = spacy.load(model_name, exclude=["senter", "ner"])
         self.stop_words = set(self.nlp.Defaults.stop_words)
 
     @staticmethod
     def preprocess_text(text: str) -> str:
+        """
+        Preprocess text : Remove URLs, long sequences of non-alphanumeric characters, and excessive whitespace.
+        Args:
+            text (str): Input text.
+        Returns:
+            str: Preprocessed text.
+        """
         # Step 1: Remove URLs
         text = re.sub(r"http[s]?://\S+|www\.\S+", " ", text)
 
@@ -35,9 +58,17 @@ class BaseTokenizer:
         # Step 3: Remove excessive whitespace
         return re.sub(r"\s+", " ", text.replace("\n", " ")).strip().lower()
 
-    def tokenize_batch(
-        self, texts: List[str], batch_size: int = 64, n_process: int = 8
-    ):
+    def tokenize_batch(self, texts: List[str], batch_size: int = 64, n_process: int = 8):
+        """
+        Tokenize texts by batches.
+        Args:
+            texts (List[str]): List of texts.
+            batch_size (int): Batch size for processing texts.
+            n_process (int): Number of processes to use for tokenization.
+        Returns:
+            List[List[str]]: List of tokenized texts.
+        """
+        
         print("Tokenizing...")
         preprocessed_texts = [self.preprocess_text(text) for text in texts]
         print("Preprocessed...")
@@ -78,9 +109,23 @@ class GermanTokenizer(BaseTokenizer):
         super().__init__("de_core_news_sm")
 
 class GermanTokenizerV2:
+    """
+    German tokenizer using Pyphen for splitting compound words.
+    Attributes:
+        nlp (spacy.Language): Spacy NLP pipeline.
+        stop_words (Set[str]): Set of stop words.
+        pyphen_dic (pyphen.Pyphen): Pyphen dictionary.
+    Methods:    
+        preprocess_text(text: str) -> str: Preprocess text.
+        split_compound_word(word: str) -> List[str]: Split compound word.
+        tokenize_batch(texts: List[str], batch_size: int = 64, n_process: int = 8) -> List[List[str]]: Tokenize texts.
+    """
     MODEL_NAME = "de_core_news_md"
 
     def __init__(self):
+        """
+        Initialize GermanTokenizer.
+        """
         spacy.cli.download(self.MODEL_NAME)
         self.nlp = spacy.load(self.MODEL_NAME, exclude=["senter", "ner"])
         self.stop_words = set(self.nlp.Defaults.stop_words)
@@ -88,15 +133,38 @@ class GermanTokenizerV2:
 
     @staticmethod
     def preprocess_text(text: str) -> str:
+        """
+        Preprocess text : Remove URLs, long sequences of non-alphanumeric characters, and excessive whitespace.
+        Args:
+            text (str): Input text.
+        Returns:
+            str: Preprocessed text.
+        """
         text = re.sub(r"http[s]?://\S+|www\.\S+", " ", text)
         text = re.sub(r"[^\w\s]{4,}", " ", text)
         return re.sub(r"\s+", " ", text.replace("\n", " ")).strip().lower()
 
     def split_compound_word(self, word: str) -> List[str]:
+        """
+        Split compound word.
+        Args:
+            word (str): Compound word.
+        Returns:
+            List[str]: List of split words.
+        """
         split_word = self.pyphen_dic.inserted(word)
         return split_word.split("-")
 
     def tokenize_batch(self, texts: List[str], batch_size: int, n_process: int):
+        """
+        Tokenize texts by batches.
+        Args:
+            texts (List[str]): List of texts.
+            batch_size (int): Batch size for processing texts.
+            n_process (int): Number of processes to use for tokenization.
+        Returns:
+            List[List[str]]: List of tokenized texts.
+        """
         preprocessed_texts = [self.preprocess_text(text) for text in texts]
         docs = self.nlp.pipe(
             preprocessed_texts, batch_size=batch_size, n_process=n_process
@@ -128,6 +196,22 @@ class KoreanTokenizer(BaseTokenizer):
 
 
 def main():
+    """
+    Processes and tokenizes a text corpus in specified languages.
+
+    Command-line Arguments:
+        -c, --corpus_df (Path): Path to the input corpus JSON file. Required.
+        -o, --output_dir (Path): Path to the directory where output files will be saved. Required.
+        -l, --language (str): The language code for filtering and tokenizing (choices defined by LANGS). Required.
+        -n, --num_splits (int): The number of parts to split the corpus into. Required.
+        -i, --split_index (int): The index of the split to process (1-indexed). Required.
+        -b, --batch_size (int): The batch size for tokenization (default is 64).
+        --cores (int): The number of processor cores to use for parallel processing (default is 10).
+
+
+    Saves:
+        A pickled file containing tokenized text data.
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-c", "--corpus_df", type=Path, required=True)

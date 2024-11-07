@@ -13,8 +13,41 @@ from src.dpr.models.utils import pooling
 
 
 class DPRIndexModule(nn.Module):
+    """
+    DPRIndexModule class for creating a dense passage retrieval (DPR) index module.
+
+    Attributes:
+        config (dict): Configuration dictionary with keys such as 'model', 'device',
+                    'doc_encodes_path', 'load_path', and others specifying 
+                    hyperparameters and paths.
+        k_chunk (int): Number of chunks per document for retrieval, defaults to 100.
+        k_doc (int): Number of documents to retrieve, defaults to 10.
+        q_tokenizer (AutoTokenizer): Tokenizer for queries using the specified 
+                                    pre-trained model.
+        q_embedder (AutoModel): Pre-trained transformer model for embedding queries.
+        q_encoder (Encoder): Custom encoder model for processing query embeddings.
+        doc_encodes (dict): Dictionary of document encodings loaded from a file.
+        doc_ids (dict): Dictionary mapping languages to document IDs.
+        all_embeds (dict): Dictionary containing document embeddings for each language.
+
+    Methods:
+        __init__(config, load_index=False): Initializes the DPRIndexModule, loads 
+                                            query encoder and document encodings.
+        forward(query, langs): Computes the top-k documents for the given query
+    """
+
+
+
 
     def __init__(self, config, load_index=False):
+        """
+        Initializes the DPRIndexModule with the given configuration and loads the query encoder.
+        Args:
+            config (dict): Configuration dictionary with keys such as 'model', 'device',
+                        'doc_encodes_path', 'load_path', and others specifying 
+                        hyperparameters and paths.
+            load_index (bool): Flag to indicate whether to load the index, defaults to False.
+        """
         super(DPRIndexModule, self).__init__()
         self.config = config
         self.k_chunk = config.get('k_chunk', 100)
@@ -98,6 +131,14 @@ class DPRIndexModule(nn.Module):
 
 
     def forward(self, query, langs):
+        """
+        Computes the top-k documents for the given query.
+        Args:
+            query (list): List of queries.
+            langs (list): List of language labels.
+        Returns:
+            list: List of top-k documents for each query.
+        """ 
         # Embed query
         top_k_ = []
         with torch.no_grad():

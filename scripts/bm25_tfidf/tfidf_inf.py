@@ -24,6 +24,19 @@ tokenizers = {"fr": FrenchTokenizer(), "de": GermanTokenizer(), "it": ItalianTok
               "ar": ArabicTokenizer(), "ko": KoreanTokenizer(), "en": EnglishTokenizer()}
 
 if __name__ == "__main__":
+    """
+    Script for evaluating TF-IDF models with a set of queries and calculating accuracy.
+
+    Command-line Arguments:
+        --token_dir (Path): Path to the directory containing tokenized query files (default: './data').
+        --ids_path (Path): Path to the JSON file containing document IDs (default: './data/ids_dict.json').
+        --tfidf_path (Path): Path to the directory containing the TF-IDF models (default: current directory).
+
+    Output:
+        Prints the accuracy of the TF-IDF retrieval for each language.
+        Optionally, the results can be saved as a CSV file.
+
+    """
 
     parser = argparse.ArgumentParser()
 

@@ -8,6 +8,13 @@ from tqdm import tqdm
 
 
 def clean_text(text):
+    """
+    Preprocess text : Remove URLs, long sequences of non-alphanumeric characters, and excessive whitespace.
+    Args:
+        text (str): Input text.
+    Returns:
+        str: Preprocessed text.
+    """
 
     # Step 1: Remove URLs
     text = re.sub(r"http[s]?://\S+|www\.\S+", " ", text)
@@ -22,6 +29,18 @@ def clean_text(text):
 
 
 def chunk_text(text, chunk_size=270, overlap_size=130, trim_threshold=30):
+    """
+    Chunk text into overlapping chunks.
+    
+    Args:
+        text (str): Input text.
+        chunk_size (int): Size of each chunk.
+        overlap_size (int): Size of overlap between chunks.
+        trim_threshold (int): Truncation threshold for trimming chunks.
+    
+    Returns:
+        List[str]: List of chunks.  
+    """
     words = text.split()
 
     chunks = []
@@ -74,6 +93,17 @@ def chunk_text(text, chunk_size=270, overlap_size=130, trim_threshold=30):
 
 
 def main() -> None:
+    """
+    Chunk text into overlapping chunks.
+    
+    Command-line Arguments:
+        --corpus (Path): Path to corpus json file
+        --output (Path): Path to output directory
+        --num_splits (int): Number of splits
+    
+    Outputs:
+        Pickled files containing chunks of the corpus
+    """
     parser = argparse.ArgumentParser(description="Chunking")
     parser.add_argument("--corpus", type=Path, help="path to corpus json file")
     parser.add_argument("--output", type=Path, help="path to output directory")

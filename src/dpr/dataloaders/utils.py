@@ -5,6 +5,17 @@ from src.dpr.dataloaders.dpr_dataset import DPRDataset
 
 
 def get_train_val_dataloaders(config, train_df, val_df, doc_embeds):
+    """
+    Get train and validation dataloaders.
+    Args:
+        config (dict): Configuration parameters.
+        train_df (pd.DataFrame): Training data.
+        val_df (pd.DataFrame): Validation data.
+        doc_embeds (dict): Document embeddings.
+    Returns:
+        torch.utils.data.DataLoader: Training dataloader.
+        torch.utils.data.DataLoader: Validation dataloader.
+    """
     train_ds = DPRDataset(train_df, doc_embeds=doc_embeds)
     val_ds = DPRDataset(val_df, doc_embeds=doc_embeds)
 

@@ -3,13 +3,41 @@ import torch
 from torch.utils.data import Dataset
 
 class DPRDataset(Dataset):
+    """
+    DPRDataset class for preparing data for Dense Passage Retrieval (DPR) models.
+
+    Attributes:
+        query_df (pd.DataFrame): DataFrame containing query data with columns like 'query_embed', 
+                                'query_id', 'lang', 'positive_docs', and 'negative_docs'.
+        doc_embeds (dict): Dictionary mapping document indices to their embeddings.
+        is_test (bool): Flag to indicate whether the dataset is used for testing.
+
+    Methods:
+        __getitem__(idx): Returns a dictionary with query and document data for the given index.
+        __len__(): Returns the number of entries in the dataset.
+        collate_fn(batch): Custom collate function to merge a list of samples into a batch.
+        """
 
     def __init__(self, query_df, is_test=False, doc_embeds=None):
+        """
+        Initializes the DPRDataset object with the given query data and document embeddings.
+        Args:
+            query_df (pd.DataFrame): DataFrame containing query data 
+            is_test (bool): Flag to indicate whether the dataset is used for testing.
+            doc_embeds (dict): Dictionary mapping document indices to their embeddings.
+        """
         self.query_df = query_df.reset_index(drop=True)
         self.doc_embeds = doc_embeds
         self.is_test = is_test
 
     def __getitem__(self, idx):
+        """
+        Returns a dictionary with query and document data for the given index.
+        Args:
+            idx (int): Index of the query data.
+        Returns:
+            dict: Dictionary containing query and document data.
+        """
         row = self.query_df.iloc[idx]
         inputs = {
             "query": torch.tensor(row['query_embed'][0], dtype=torch.float32),
@@ -33,9 +61,21 @@ class DPRDataset(Dataset):
         return inputs
 
     def __len__(self):
+        """
+        Returns the number of entries in the dataset.
+        Returns:
+            int: Number of entries in the dataset.
+        """
         return len(self.query_df)
 
     def collate_fn(self, batch):
+        """
+        Custom collate function to merge a list of samples into a batch.
+        Args:
+            batch (List[dict]): List of samples containing query and document data.
+        Returns:
+            dict: Dictionary containing batched query and document data.
+        """
 
         return_dict = {}
         queries = [sample["query"] for sample in batch]

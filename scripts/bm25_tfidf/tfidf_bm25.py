@@ -25,6 +25,20 @@ tokenizers = {"fr": FrenchTokenizer(), "de": GermanTokenizer(), "it": ItalianTok
 
 
 if __name__ == "__main__":
+    """
+    Script for combining BM25 and TF-IDF models to evaluate document retrieval accuracy.
+
+    Command-line Arguments:
+        -dir, --token_dir (Path): Path to the directory containing tokenized query files (default: './data').
+        --tfidf_path (Path): Path to the directory containing TF-IDF models (default: current directory).
+        --ids_path (Path): Path to the JSON file containing document IDs (default: './data/ids_dict.json').
+        --bm25_path (Path): Path to the directory containing BM25 models (default: current directory).
+
+    Output:
+        Prints the accuracy of the combined BM25 and TF-IDF retrieval for each language.
+
+    """
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-dir", "--token_dir", type=Path, default = "./data")

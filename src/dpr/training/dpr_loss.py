@@ -3,14 +3,35 @@ import torch.nn as nn
 
 
 class DPRLoss(nn.Module):
+    """
+    Custom loss function for DPR.
+
+    Attributes:
+        similarity_model (nn.Module): Model to compute similarity between query and document embeddings.
+
+    Methods:
+        forward(inputs): Computes the loss using the similarity model.
+    """
     # negative log likelihood loss
 
     def __init__(self, similarity_model):
+        """
+        Initializes the DPRLoss with the given similarity model.
+        Args:
+            similarity_model (nn.Module): Model to compute similarity between query and document embeddings.
+        """
         super(DPRLoss, self).__init__()
         self.similarity_model = similarity_model
 
 
     def forward(self, inputs):
+        """
+        Computes the loss using the similarity model.
+        Args:
+            inputs (dict): Dictionary containing query, positive, and negative embeddings.
+        Returns:
+            torch.Tensor: Loss value.
+        """
 
         positive_ = inputs['positive']
         negative_ = inputs['negative']

@@ -25,9 +25,25 @@ LANGS = ["ar"]
 
 
 class BaseTokenizer:
+    """
+    Arabic tokenizer class.
 
+    Attributes:
+        translator (str): Punctuation translator.
+        mle (MLEDisambiguator): MLE disambiguator.
+        stop_words (List[str]): List of stop words.
+
+    Methods:
+        preprocess_text(text: str) -> str: Preprocess text.
+        tokenize(texts: List[str]) -> List[List[str]]: Tokenize texts.
+    """
 
     def __init__(self, stop_words_path=None):
+        """
+        Initialize ArabicTokenizer.
+        Args:
+            stop_words_path (str): Path to the stop words file.
+        """
 
         punctuations = '''`÷×؛<>«»_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''' + string.punctuation
         self.translator = str.maketrans('', '', punctuations)
@@ -39,6 +55,13 @@ class BaseTokenizer:
 
 
     def preprocess_text(self, text: str) -> List[str]:
+        """
+        Preprocess text : Remove URLs, long sequences of non-alphanumeric characters, and excessive whitespace.
+        Args:
+            text (str): Input text.
+        Returns:
+            str: Preprocessed text.
+        """
         # Step 1: Remove URLs
         text = re.sub(r"http[s]?://\S+|www\.\S+", " ", text)
 
@@ -66,9 +89,15 @@ class BaseTokenizer:
 
         return lemmas
 
-    def tokenize_batch(
-            self, texts: List[str], cores: int = 10
-    ) -> List[List[str]]:
+    def tokenize_batch(self, texts: List[str], cores: int = 10) -> List[List[str]]:
+        """
+        Tokenize texts by batches.
+        Args:
+            texts (List[str]): List of texts.
+            cores (int): Number of cores to use for tokenization.
+        Returns:
+            List[List[str]]: List of tokenized texts.
+        """
         print("Tokenizing...")
         with Pool(cores) as pool:
             results = pool.map(self.preprocess_text, texts)
@@ -80,6 +109,24 @@ class ArabicTokenizer(BaseTokenizer):
         super().__init__(stop_words_path)
 
 def main():
+    """
+    Processes and tokenizes an arabic text corpus.
+
+    Command-line Arguments:
+        -c, --corpus_df (Path): Path to the input corpus JSON file. Required.
+        -o, --output_dir (Path): Path to the directory where output files will be saved. Required.
+        -l, --language (str): The language code for filtering and tokenizing (choices defined by LANGS). Required.
+        -n, --num_splits (int): The number of parts to split the corpus into. Required.
+        -i, --split_index (int): The index of the split to process (1-indexed). Required.
+        -b, --batch_size (int): The batch size for tokenization (default is 64).
+        -p, --cores (int): The number of processor cores to use for parallel processing (default is 10).
+        --topwords_path (Path): Optional path to a file containing top words for the tokenizer.
+
+
+    Saves:
+        A pickled file containing tokenized text data.
+    """
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-c", "--corpus_df", type=Path, required=True)

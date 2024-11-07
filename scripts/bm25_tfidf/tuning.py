@@ -25,6 +25,14 @@ tokenizers = {"fr": FrenchTokenizer(), "de": GermanTokenizer(), "it": ItalianTok
 
 
 def recall_at_k(ranks: List[int], k: int) -> float:
+    """
+    Compute recall@k.
+    Args:
+        ranks (List[int]): List of ranks of relevant documents.
+        k (int): Rank threshold.
+    Returns:
+        float: Recall@k.
+    """
     return sum([1 for rank in ranks if rank <= k]) / len(ranks)
 
 
@@ -36,6 +44,18 @@ def test_bm25(
     queries_targets: List[int],
     k_for_recall: int,
 ) -> float:
+    """
+    Test BM25 model.
+    Args:
+        k1 (float): k1 parameter.
+        b (float): b parameter.
+        corpus_tokens (List[List[str]]): List of tokenized documents.
+        queries_tokens (List[List[str]]): List of tokenized queries.
+        queries_targets (List[int]): List of relevant document indices.
+        k_for_recall (int): Rank threshold for recall.
+    Returns:
+        float: Recall@k.
+    """
     bm25 = BM25(k1=k1, b=b)
     bm25.fit(corpus_tokens)
 
@@ -48,6 +68,22 @@ def test_bm25(
 
 
 def main() -> None:
+    """
+    Script for tuning BM25 parameters.
+    
+    Command-line Arguments:
+        --lang (str): Language code.
+        --k1s (List[float]): List of k1 parameters.
+        --bs (List[float]): List of b parameters.
+        --k_for_recall (int): Rank threshold for recall.
+        --dataset_path (Path): Path to the dataset CSV file.
+        --corpus_path (Path): Path to the tokenized corpus.
+        --output_path (Path): Path to save the results CSV file.
+        --corpus_ids (Path): Path to the JSON file containing document IDs.
+    
+    Output:
+        Print and saves a CSV file with the recall@10 for each parameter combination.
+        """
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--lang", type=str)

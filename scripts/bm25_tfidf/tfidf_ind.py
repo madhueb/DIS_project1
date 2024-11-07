@@ -8,6 +8,16 @@ from pathlib import Path
 
 
 if __name__ == "__main__":
+    """
+    Script for creating and saving a TF-IDF model for a specified language.
+
+    Command-line Arguments:
+        -dir, --token_dir (Path): Path to the directory containing the tokenized documents (default is './data').
+        -lang, --language (str): Language code for which to create the TF-IDF model. Choices are ['ar', 'de', 'en', 'es', 'fr', 'it', 'ko'].
+
+    Output:
+        Saves a pickled TF-IDF model to the current directory as 'tfidf_<language>.pkl'.
+    """
 
     parser = argparse.ArgumentParser()
 

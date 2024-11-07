@@ -5,6 +5,17 @@ from transformers import AutoTokenizer
 from tqdm import tqdm
 
 def main() -> None:
+    """
+    Tokenize the corpus.
+    
+    Command-line Arguments:
+        --chunks (Path): Path to chunked corpus directory.
+        --output (Path): Path to output directory.
+        --split_id (int): Split id.
+        
+    Output:
+        Saves a pickled file containing the tokenized corpus.
+    """
     parser = argparse.ArgumentParser(description="Tokenizing")
     parser.add_argument("--chunks", type=Path, help="path to chunked corpus directory")
     parser.add_argument("--output", type=Path, help="path to output directory")
