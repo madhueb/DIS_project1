@@ -70,5 +70,5 @@ if __name__ == "__main__":
         print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
         gc.collect()
 
-    queries = queries[["id", "docids"]]
-    queries.to_csv(f"{args.token_dir}/submission.csv", index=False)
+    # queries = queries[["id", "docids"]]
+    # queries.to_csv(f"{args.token_dir}/submission.csv", index=False)

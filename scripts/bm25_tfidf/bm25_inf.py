@@ -61,7 +61,7 @@ if __name__ == "__main__":
             indices, _ = bm25_ind.match(tokenized_query, k=10)
             doc_ids.append(ids_dict[lang][indices].tolist())
 
-        # queries.loc[queries["lang"] == lang, "docids"] = pd.Series(doc_ids, index=queries.loc[queries["lang"] == lang].index)
+        queries.loc[queries["lang"] == lang, "docids"] = pd.Series(doc_ids, index=queries.loc[queries["lang"] == lang].index)
         acc = 0
         for i, row in queries_lang.iterrows():
             if row["positive_docs"] in doc_ids[i]:
@@ -69,5 +69,5 @@ if __name__ == "__main__":
         print(f"Accuracy for {lang} : {acc / len(queries_lang)}")
         gc.collect()
 
-    queries = queries[["id", "docids"]]
-    queries.to_csv(f"{args.token_dir}/submission.csv", index=False)
+    # queries = queries[["id", "docids"]]
+    # queries.to_csv(f"{args.token_dir}/submission.csv", index=False)
