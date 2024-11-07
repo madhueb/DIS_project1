@@ -59,7 +59,7 @@ if __name__ == "__main__":
     ls = [[] for _ in range(len(queries))]
     queries["docids"] = ls
 
-    k_b = 8
+    k_b = 9
     k = 10
 
     for lang in LANGS:
@@ -72,18 +72,16 @@ if __name__ == "__main__":
             indices, _ = bm25_ind.match(tokenized_query, k=k)
             bm25_ind_doc_ids.append(ids_dict[lang][indices].tolist())
 
-        tfidf_doc_ids = [ids_dict[lang][docid].tolist() for docid in tfidfs[lang].retrieve_top_k(tokens, k=k)]
+        tfidf_doc_ids = [ids_dict[lang][docid].tolist() for docid in tfidfs[lang].retrieve_top_k(tokens, k=k_b)]
 
         doc_ids = []
         for i in range(len(queries_lang)):
-            # docid = list(set(bm25_ind_doc_ids[i][:k_b] + tfidf_doc_ids[i][:k - k_b]))
-            # if len(docid) < k:
-            #     docid = bm25_ind_doc_ids[i][:k]
-            # doc_ids.append(docid)
             docid = bm25_ind_doc_ids[i][:k_b]
-            for rec in tfidf_doc_ids[i][:k - k_b]:
+            for rec in tfidf_doc_ids[i]:
                 if rec not in docid:
                     docid.append(rec)
+                if len(docid) == k:
+                    break
             l = k_b
             while len(docid) < k:
                 if bm25_ind_doc_ids[i][l] not in docid:
