@@ -43,12 +43,6 @@ if __name__ == "__main__":
     for lang in LANGS:
         ids_dict[lang] = np.array(ids_dict[lang])
 
-    tfidfs = {}
-    for lang in LANGS:
-        with open(f"tfidf_{lang}.pkl", "rb") as f:
-            tfidfs[lang] = pickle.load(f)
-
-
     queries = pd.read_csv(f'{args.token_dir}/train.csv')
     # queries = pd.read_csv(f'{args.token_dir}/test.csv')
 

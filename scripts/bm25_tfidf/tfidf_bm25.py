@@ -7,8 +7,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from bm25_inf import bm25s
-
 
 from src.bm25_tfidf.tokenizer import (
     FrenchTokenizer,
