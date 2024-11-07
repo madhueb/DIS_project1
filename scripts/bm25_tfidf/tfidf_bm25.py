@@ -72,7 +72,7 @@ if __name__ == "__main__":
             indices, _ = bm25_ind.match(tokenized_query, k=k)
             bm25_ind_doc_ids.append(ids_dict[lang][indices].tolist())
 
-        tfidf_doc_ids = [ids_dict[lang][docid].tolist() for docid in tfidfs[lang].tokenize(tokens, lang, k=k)]
+        tfidf_doc_ids = [ids_dict[lang][docid].tolist() for docid in tfidfs[lang].retrieve_top_k(tokens, k=k)]
 
         doc_ids = []
         for i in range(len(queries_lang)):

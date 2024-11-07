@@ -87,7 +87,7 @@ class Tf_Idf_Vectorizer:
         self.fit(documents)
         self.tfidf_matrix = self.transform(documents)
 
-    def retrieve_top_k(self, tokens, lang, k=10):
+    def retrieve_top_k(self, tokens, k=10):
 
         queries = self.transform(tokens, is_query=True)
 
