@@ -32,9 +32,17 @@ if __name__ == "__main__":
     parser.add_argument("-dir", "--token_dir", type=Path, default = "./data")
     parser.add_argument("--tfidf_path", type=Path, default=".")
     parser.add_argument("--ids_path", type=Path, default="./data/ids_dict.json")
+    parser.add_argument("--bm25_path", type=Path, default=".")
+
+    args = parser.parse_args()
+
+    bm25s = {}
+
+    for lang in LANGS:
+        with open(f"{args.bm25_path}/bm25_{lang}.pkl", "rb") as f:
+            bm25s[lang] = pickle.load(f)
 
     tfidfs = {}
-    args = parser.parse_args()
     for lang in LANGS:
         with open(args.tfidf_path / f"tfidf_{lang}.pkl", "rb") as f:
             tfidfs[lang] = pickle.load(f)

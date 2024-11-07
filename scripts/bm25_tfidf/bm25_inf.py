@@ -23,20 +23,20 @@ tokenizers = {"fr": FrenchTokenizer(), "de": GermanTokenizer(), "it": ItalianTok
               "ar": ArabicTokenizer(), "ko": KoreanTokenizer(), "en": EnglishTokenizer()}
 
 
-bm25s = {}
-
-for lang in LANGS:
-    with open(f"bm25_{lang}.pkl", "rb") as f:
-        bm25s[lang] = pickle.load(f)
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-dir", "--token_dir", type=Path, default = "./data")
+    parser.add_argument("--token_dir", type=Path, default = "./data")
     parser.add_argument("--ids_path", type=Path, default="./data/ids_dict.json")
+    parser.add_argument("--bm25_path", type=Path, default=".")
 
     args = parser.parse_args()
+
+    bm25s = {}
+
+    for lang in LANGS:
+        with open(f"{args.bm25_path}/bm25_{lang}.pkl", "rb") as f:
+            bm25s[lang] = pickle.load(f)
 
     # load doc ids dict with json
     with open(args.ids_path, "r") as f:
