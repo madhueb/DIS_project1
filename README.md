@@ -65,11 +65,11 @@ You can specify the following arguments when running the model:
 
 | Argument              | Description                                    | Type   | Default |
 |-----------------------|------------------------------------------------|--------|---------|
-| `--seed`              | Set the seed for deterministic results         | `int`  | 42      |
-| `--gamma`             | Learning rate for training                     | `float`| 0.1     |
-| `--max_iters`         | Maximum number of iterations                   | `int`  | 1000    |
-| `--lambda_`           | Regularization parameter                       | `float`| 0       |
-| `--undersampling_ratio` | Undersampling ratio to balance the classes    | `float`| 0.2     |
+|                       |                                                |        |         |
+|                       |                                                |        |         |
+|                       |                                                |        |         |
+|                       |                                                |        |         |
+|                       |                                                |        |         |
 
 ## Parameters exploration
 
